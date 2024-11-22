@@ -128,3 +128,68 @@
     }
 
 }
+/* Newsletter Section */
+.newsletterContainer {
+    position: relative;
+    background-color: #285a77;
+    padding: 40px;
+    margin: 0 auto;
+    margin-bottom: -50px; /* Overlap the footer */
+    width: 70%;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.newsletterContent {
+    text-align: center;
+}
+
+.newsletterText {
+    color: #fefefe;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.newsletterInputContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.newsletterInput {
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px 0 0 5px;
+    width: 50%;
+    outline: none;
+}
+
+.subscribeButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #f1c40f;
+    border: none;
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+    color: #000;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.subscribeButton:hover {
+    background-color: #e1b000;
+}
+
+/* Adjustments for Socials Section */
+.icon {
+    margin-right: 10px;
+    font-size: 20px;
+    color: #fefefe;
+}
+
+@media screen and (max-width: 600px) {
+    .newsletterInput {
+        width: 70%;
+    }
+}

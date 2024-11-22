@@ -23,9 +23,34 @@ const Footer = () => {
 
     return (
         <>
+            {/* Newsletter Section */}
+            <div className={styles.newsletterContainer}>
+                <div className={styles.newsletterContent}>
+                    <p className={styles.newsletterText}>
+                        Subscribe to our newsletter to get <br />
+                        our updates and recommendations.
+                    </p>
+                    <div className={styles.newsletterInputContainer}>
+                        <input
+                            type="email"
+                            placeholder="Enter your email"
+                            className={styles.newsletterInput}
+                        />
+                        <button
+                            className={styles.subscribeButton}
+                            onClick={() => (window.location.href = "mailto:info@kilonzocorp.com")}
+                        >
+                            Subscribe
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Footer Section */}
             <div style={{ backgroundColor: '#818589', paddingTop: '89px', paddingBottom: '90px' }}>
                 <div className="container">
                     <div className="row">
+                        {/* Column 1 */}
                         <div className={`col-lg-3 col-sm-6 ${styles.contain}`}>
                             <p className={styles.logo}>KilonzoCorp</p>
                             <p className={styles.text}>
@@ -34,22 +59,9 @@ const Footer = () => {
                             <p className={styles.text}>
                                 Our tailored solutions ensure accuracy and efficiency, empowering businesses to build cutting-edge technologies.
                             </p>
-                            <div className={styles.social_logo}>
-                                <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">
-                                    <FaFacebook className={styles.icon} />
-                                </a>
-                                <a href="https://vm.tiktok.com/" target="_blank" rel="noopener noreferrer">
-                                    <FaTiktok className={styles.icon} />
-                                </a>
-                                <a href="https://www.instagram.com/kilonzocorp/profilecard/?igsh=amRqM3h3dDNsa2c=" target="_blank" rel="noopener noreferrer">
-                                    <FaInstagram className={styles.icon} />
-                                </a>
-                                <a href="https://x.com/Kilonzocorp" target="_blank" rel="noopener noreferrer">
-                                    <FaTwitter className={styles.icon} />
-                                </a>
-                            </div>
                         </div>
 
+                        {/* Column 2 */}
                         <div className={`col-lg-3 col-sm-6 ${styles.contain}`}>
                             <p className={styles.head}>Our Services</p>
                             {servicesData.map((service, index) => (
@@ -71,13 +83,32 @@ const Footer = () => {
                             ))}
                         </div>
 
+                        {/* Column 3 */}
                         <div className={`col-lg-3 col-sm-6 ${styles.contain}`}>
-                            <p className={styles.head}>Usefull Links</p>
+                            <p className={styles.head}>Useful Links</p>
                             <p className={styles.text}>Westlands, Nairobi, Kenya</p>
                             <p className={styles.text}>contact@kilonzocorp.co.ke</p>
                             <p className={styles.text}>+254700000000</p>
                         </div>
 
+                        {/* Column 4 */}
+                        <div className={`col-lg-3 col-sm-6 ${styles.contain}`}>
+                            <p className={styles.head}>Follow Our Socials</p>
+                            <p className={styles.text}>
+                                <FaFacebook className={styles.icon} /> Facebook: @KilonzoCorp
+                            </p>
+                            <p className={styles.text}>
+                                <FaTiktok className={styles.icon} /> TikTok: @KilonzoCorp
+                            </p>
+                            <p className={styles.text}>
+                                <FaInstagram className={styles.icon} /> Instagram: @KilonzoCorp
+                            </p>
+                            <p className={styles.text}>
+                                <FaTwitter className={styles.icon} /> Twitter: @KilonzoCorp
+                            </p>
+                        </div>
+
+                        {/* Column 5 */}
                         <div className={`col-lg-3 col-sm-6 ${styles.contain}`}>
                             <p className={styles.head}>Opening Hours</p>
                             <p className={styles.text}>Mon - Fri : 08:00 - 18:00</p>
@@ -88,6 +119,7 @@ const Footer = () => {
                 </div>
             </div>
 
+            {/* Copyright Section */}
             <div style={{ backgroundColor: '#285a77', borderTop: 'solid 1px #707070' }}>
                 <p className={styles.bottom}>Copyright © 2024 Kilonzocorp. All rights reserved</p>
             </div>
