@@ -10,8 +10,9 @@ import ForgotPassword from '../components/Registration/ForgotPassword';
 import Quotation from "../components/Quotations/Quotation";
 import CompanyTeam from "../components/Team/Team";
 import Blog from "../components/Blog/blog";
-import Shop from "../components/Shop/shop";
 import Login from "../components/Registration/Login";
+import Pricing from "../components/Pricing/pricing";
+import Checkout from "../components/checkout/checkout";
 
 const routes = [
   {
@@ -63,8 +64,8 @@ const routes = [
     to: '/Quotation'
   },
   {
-    component: Shop,
-    to: '/Shop'
+    component: Pricing,
+    to: '/pricing'
   },
   {
     component: ForgotPassword,
@@ -74,6 +75,10 @@ const routes = [
  {
     component:Login,
     to: '/login'
+  },
+  {
+    component:Checkout,
+    to: '/checkout'
   },
 ];
 

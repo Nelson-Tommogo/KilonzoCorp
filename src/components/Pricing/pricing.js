@@ -1,15 +1,15 @@
 import React from 'react';
-import './shop.css';
-import { Link } from 'react-router-dom';  // Correct import for Link
+import './pricing.css';
+import { Link } from 'react-router-dom';
 
-import Footer from '../Footer/Footer'; // Assuming Footer is a separate component
+import Footer from '../Footer/Footer';
 
-const Shop = () => {
+const Pricing = () => {
   const pricingPlans = [
     {
       id: 1,
-      planName: 'Free Trial',
-      price: '$10.49 / project',
+      planName: 'Free Trial Plan',
+      price: '$1999.49 / project',
       description: 'Perfect for smaller projects with essential features.',
       features: [
         'Image & Video Annotation (Up to 10,000 labels)',
@@ -55,7 +55,7 @@ const Shop = () => {
         'Dedicated Project Manager',
         'Priority Email & Phone Support',
       ],
-      isDefault: false,
+      isDefault: true,  // Pro Plan is the default plan
     },
     {
       id: 4,
@@ -72,7 +72,7 @@ const Shop = () => {
         'On-Demand Annotation Team for Scalability',
         'Data Security Compliance (Advanced encryption and access controls)',
       ],
-      isDefault: true,  // Default plan selected
+      isDefault: false,
     },
   ];
 
@@ -83,9 +83,9 @@ const Shop = () => {
         <p>Select the best plan for your project needs.</p>
       </div>
 
-      <div className="row">
+      <div className="column">
         {pricingPlans.map((plan) => (
-          <div key={plan.id} className={`col-lg-4 col-md-6 mb-4 ${plan.isDefault ? 'default-plan' : ''}`}>
+          <div key={plan.id} className={`col-lg-12 mb-4 ${plan.isDefault ? 'default-plan' : ''}`}>
             <div className={`card pricing-card ${plan.isDefault ? 'default-card' : ''}`}>
               <div className="card-body text-center">
                 <h5 className={`card-title ${plan.isDefault ? 'default-title' : ''}`}>{plan.planName}</h5>
@@ -98,14 +98,27 @@ const Shop = () => {
                     </li>
                   ))}
                 </ul>
-                <Link to="/checkout" className="btn btn-primary mt-2">Order Now</Link>
+                <Link
+                  to={{
+                    pathname: '/checkout',
+                    state: {
+                      planName: plan.planName,
+                      price: plan.price,
+                    },
+                  }}
+                  className={`btn ${plan.isDefault ? 'btn-default' : 'btn-bordered'} mt-2`}
+                >
+                  Order Now
+                </Link>
               </div>
             </div>
           </div>
         ))}
       </div>
+
       <Footer />
     </div>
   );
 };
-export default Shop;
+
+export default Pricing;

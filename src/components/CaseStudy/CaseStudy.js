@@ -16,7 +16,7 @@ const CaseStudy = () => {
             <div className='row mb-2'>
                 {/* Image & Video Annotation */}
                 <div className={`col-md-4 col-sm-6 mt-4 ${styles.serviceContainer}`} data-aos='fade'>
-                    <Link to="/shop" style={{ textDecoration: "none" }}>
+                    <Link to="/pricing" style={{ textDecoration: "none" }}>
                         <div className={styles.img}>
                             <FaImage className={styles.icon} />
                             <p className={styles.imgTitle}>Image & Video Annotation</p>
@@ -29,7 +29,7 @@ const CaseStudy = () => {
 
                 {/* Text Annotation */}
                 <div className={`col-md-4 col-sm-6 mt-4 ${styles.serviceContainer}`} data-aos='fade'>
-                    <Link to="/shop" style={{ textDecoration: "none" }}>
+                    <Link to="/pricing" style={{ textDecoration: "none" }}>
                         <div className={styles.img}>
                             <FaFont className={styles.icon} />
                             <p className={styles.imgTitle}>Text Annotation</p>
@@ -42,7 +42,7 @@ const CaseStudy = () => {
 
                 {/* Audio Annotation */}
                 <div className={`col-md-4 col-sm-6 mt-4 ${styles.serviceContainer}`} data-aos='fade'>
-                    <Link to="/shop" style={{ textDecoration: "none" }}>
+                    <Link to="/pricing" style={{ textDecoration: "none" }}>
                         <div className={styles.img}>
                             <FaHeadphones className={styles.icon} />
                             <p className={styles.imgTitle}>Audio Annotation</p>
@@ -55,7 +55,7 @@ const CaseStudy = () => {
 
                 {/* 3D Point Cloud Annotation */}
                 <div className={`col-md-4 col-sm-6 mt-4 ${styles.serviceContainer}`} data-aos='fade'>
-                    <Link to="/shop" style={{ textDecoration: "none" }}>
+                    <Link to="/pricing" style={{ textDecoration: "none" }}>
                         <div className={styles.img}>
                             <FaCube className={styles.icon} />
                             <p className={styles.imgTitle}>3D Point Cloud Annotation</p>
