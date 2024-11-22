@@ -20,7 +20,7 @@
 }
 
 .box {
-    background-color: rgba(79, 76, 134, 0.1);
+    background-color: rgba(40, 90, 119, 0.1);
     border: solid 2px rgba(220, 216, 226, 0.5);
     border-radius: 10px;
     padding: 40px 27px 55.4px 28px;
@@ -28,7 +28,7 @@
 }
 
 .icon {
-    color: rgb(56, 108, 104); /* Icon color */
+    color: #ffffff; /* Icon color */
     margin-bottom: 20px;
 }
 
