@@ -1,7 +1,6 @@
 import React from 'react';
 import './pricing.css';
 import { Link } from 'react-router-dom';
-
 import Footer from '../Footer/Footer';
 
 const Pricing = () => {
@@ -106,7 +105,7 @@ const Pricing = () => {
                       price: plan.price,
                     },
                   }}
-                  className={`btn ${plan.isDefault ? 'btn-default' : 'btn-bordered'} mt-2`}
+                  className={`pricing-link ${plan.isDefault ? 'default-plan-link' : 'border-link'} mt-2`}
                 >
                   Order Now
                 </Link>

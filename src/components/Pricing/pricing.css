@@ -20,10 +20,11 @@
 
 /* Grid Layout for Pricing Plans */
 .column {
-  display: grid;  /* Use grid for better control */
-  gap: 99px; /* Adjusted gap between cards */
+  display: grid; /* Use grid for better control */
+  gap: 10px; /* Adjusted gap between cards for a cleaner look */
   margin-top: 10px;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive grid */
+  grid-template-columns: repeat(2, 1fr); /* Forces a 2 by 2 grid layout */
+  justify-content: center; /* Centers the grid in the container */
 }
 
 .card {
@@ -40,6 +41,8 @@
 
 .card:hover {
   transform: scale(1.05);
+  cursor: pointer; /* Changes cursor when hovering over the card */
+  background-color: #a6c8db; 
 }
 
 .card-body {
@@ -156,7 +159,51 @@
   }
 
   .card {
-    width: 80%; /* Makes the card take most of the screen width on small devices */
+    width: 90%; /* Makes the card take most of the screen width on small devices */
     margin-bottom: 20px; /* Adds space between the stacked cards */
   }
 }
+
+/* General Link Styling */
+.pricing-link {
+  display: inline-block;
+  padding: 12px 20px;
+  font-weight: bold;
+  border-radius: 5px;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Default Plan Styling */
+.default-plan-link {
+  background-color: #a6c8db; /* Green background */
+  color: white;
+  border: 2px solid #a6c8db; /* Solid green border */
+}
+
+/* Border-only Link Styling */
+.border-link {
+  background-color: #a6c8db; /* background */
+  color: #00796b;
+  border: 2px solid #a6c8db;
+}
+
+/* Hover States */
+.pricing-link:hover {
+  background-color: #004d40; /* Darker green on hover */
+  color: white;
+}
+
+.default-plan-link:hover {
+  background-color: #004d40; /* Darker green for default plan button */
+  border-color: #004d40;
+}
+
+.border-link:hover {
+  background-color: #00796b; /* Green background on hover for bordered button */
+  color: white;
+}
+
+
+
