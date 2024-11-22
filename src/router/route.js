@@ -13,6 +13,7 @@ import Blog from "../components/Blog/blog";
 import Login from "../components/Registration/Login";
 import Pricing from "../components/Pricing/pricing";
 import Checkout from "../components/checkout/checkout";
+import AdminDashboard from "../components/Admin/AdminDashboard";
 
 const routes = [
   {
@@ -79,6 +80,10 @@ const routes = [
   {
     component:Checkout,
     to: '/checkout'
+  },
+  {
+    component:AdminDashboard,
+    to: '/admin'
   },
 ];
 

@@ -1,22 +1,19 @@
-/* General Styling */
-.heading {
+.heading{
     font-family: 'Poppins';
     font-size: 30px;
     font-weight: 500;
     color: #ff4c0a;
     margin-top: 77px;
-    margin-bottom: 0;
+    margin-bottom: 0px;
 }
-
-.subHeading {
+.subHeading{
     font-family: 'Poppins';
     font-size: 34px;
     font-weight: bold;
-    color: rgb(56, 79, 108);
+    color: rgb(56, 79, 108);;
     margin-top: 36px;
 }
-
-.content {
+.content{
     font-family: 'Poppins';
     font-size: 18px;
     color: #000000;
@@ -26,12 +23,10 @@
     margin-right: auto;
     margin-bottom: 70px;
 }
-
-.contain {
+.contain{
     padding-left: 100px;
 }
-
-.about {
+.about{
     font-family: 'Poppins';
     font-size: 50px;
     font-weight: bold;
@@ -41,146 +36,126 @@
     margin-top: 119px;
 }
 
-.imgContain {
+.imgContain{
     margin-left: -90px;
 }
-
 .img1 {
-    width: 50%;
-    height: auto;
-    max-height: 200px;
+    width: 50%; 
+    height: auto; 
+    max-height: 200px; 
 }
-
 .img2 {
     text-align: left;
     padding-left: 100px;
     margin-top: 14px;
     width: 50%;
-    height: auto;
-    max-height: 200px;
+    height: auto; 
+    max-height: 200px; 
     margin-bottom: 82px;
 }
-
-.creativity {
+.creativity{
     font-family: 'Poppins';
     font-size: 30px;
     font-weight: bold;
-    color: rgb(108, 77, 56);
+    color: rgb(108,77,56);
     text-align: left;
 }
-
-.contn {
+.contn{
     font-family: 'Poppins';
     font-size: 18px;
     color: #989e9d;
     text-align: left;
 }
 
-/* Responsive Styles */
 @media screen and (max-width: 1200px) {
-    .contain {
+    .contain{
         padding-left: 40px;
     }
-
-    .img2 {
+    .img2{
         padding-left: 40px;
     }
-
-    .imgContain {
+    .imgContain{
         margin-left: -60px;
     }
 }
-
 @media screen and (max-width: 992px) {
-    .heading {
+    .heading{
         font-size: 25px;
         margin-top: 60px;
     }
-
-    .subHeading {
+    .subHeading{
         font-size: 29px;
         margin-top: 30px;
     }
-
-    .contain {
-        padding-left: 0;
+    .contain{
+        padding-left: 0px;
     }
-
-    .img2 {
-        padding-left: 0;
+    .img2{
+        padding-left: 0px;
         margin-bottom: 60px;
     }
-
-    .imgContain {
+    .imgContain{
         margin-left: -30px;
     }
-
-    .about {
+    .about{
         font-size: 40px;
     }
-
-    .creativity {
+    .creativity{
         font-size: 25px;
     }
-}
 
+}
 @media screen and (max-width: 768px) {
-    .content {
+    .content{
         width: 100%;
     }
-
-    .about {
+    .about{
         margin-top: 80px;
     }
-
-    .imgContain {
-        margin-left: 0;
+    .imgContain{
+        margin-left: 0px;
     }
 }
 
 @media screen and (max-width: 650px) {
-    .heading {
+    .heading{
         font-size: 20px;
         margin-top: 40px;
     }
-
-    .subHeading {
+    .subHeading{
         font-size: 24px;
         margin-top: 20px;
     }
-
-    .img2 {
+    .img2{
         margin-bottom: 40px;
     }
-
-    .about {
+    .about{
         font-size: 30px;
         margin-top: 60px;
     }
-
-    .creativity {
+    .creativity{
         font-size: 20px;
     }
 
     .icon {
         transition: transform 0.3s ease, color 0.3s ease;
     }
-
+    
     .iconBlue {
-        color: #007bff;
+        color: #007bff; /* Blue color for the icons */
     }
-
+    
     .iconBlue:hover {
-        color: #0056b3;
-        transform: scale(1.1);
+        color: #0056b3; /* Darker blue on hover */
+        transform: scale(1.1); /* Slight scale-up effect on hover */
     }
-
+    
     /* Bulb glow effect */
     .bulbEffect {
         animation: glow 1.5s infinite;
-        color: #007bff;
+        color: #007bff; /* Same blue color as other icons */
     }
-
+    
     @keyframes glow {
         0% {
             text-shadow: 0 0 5px #007bff, 0 0 10px #007bff, 0 0 15px #007bff;
@@ -192,4 +167,6 @@
             text-shadow: 0 0 5px #007bff, 0 0 15px #007bff, 0 0 25px #007bff;
         }
     }
+    
+
 }
