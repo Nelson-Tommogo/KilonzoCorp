@@ -1,0 +1,125 @@
+/* General styles */
+.pricing-container {
+  margin-top: 50px;
+  padding: 0 5px; /* Add padding to keep space on the sides */
+}
+
+.pricing-header h2 {
+  font-size: 32px;
+  color: #333;
+  font-weight: bold;
+  text-align: center;
+}
+
+.pricing-header p {
+  font-size: 16px;
+  color: #777;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* Flexbox Container for Horizontal Layout */
+.row {
+  display: flex;
+  justify-content: space-between; /* Adds space between the cards */
+  gap: 0px; /* Adds a consistent space between the plans */
+  flex-wrap: nowrap; /* Prevents wrapping to a new line */
+  margin-top: 10px;
+}
+
+/* Card Styling */
+.card {
+  width: 70%; /* Makes the card take up 30% of the row width */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+  padding: 10px;
+  background-color: #fff;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+.card-body {
+  padding: 20px;
+  text-align: center;
+}
+
+.card-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.price {
+  font-size: 22px;
+  font-weight: bold;
+  color: #000;
+  margin: 10px 0;
+}
+
+.features-list {
+  list-style-type: none;
+  padding-left: 0;
+  margin-top: 10px; /* Adds spacing above the features list */
+  text-align: left; /* Aligns the text to the left */
+}
+
+.feature-item {
+  font-size: 16px;
+  color: #555;
+  display: flex;
+  align-items: center; /* Ensures the text and the icon are vertically aligned */
+  margin-bottom: 8px; /* Adds space between items */
+}
+
+.feature-item .tick {
+  color: green;
+  margin-right: 10px; /* Adds space between the tick and the text */
+}
+
+.feature-item .cross {
+  color: red;
+  margin-right: 10px; /* Adds space between the cross and the text */
+}
+
+/* Styling for default plan (Standard Plan) */
+.default-plan .card {
+  border: 2px solid #00796b;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background-color: #e0f2f1;
+}
+
+.default-title {
+  color: #00796b;
+}
+
+.default-card {
+  background-color: #e0f2f1;
+}
+
+/* Button */
+.btn-primary {
+  background-color: #00796b;
+  border-color: #00796b;
+}
+
+.btn-primary:hover {
+  background-color: #004d40;
+  border-color: #004d40;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .row {
+    flex-direction: column; /* Stacks the plans vertically on small screens */
+    align-items: center;
+  }
+
+  .card {
+    width: 80%; /* Makes the card take most of the screen width on small devices */
+    margin-bottom: 20px; /* Adds space between the stacked cards */
+  }
+}
