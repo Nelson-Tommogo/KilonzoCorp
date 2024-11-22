@@ -1,7 +1,6 @@
 import React from 'react';
 import './pricing.css';
 import { Link } from 'react-router-dom';
-
 import Footer from '../Footer/Footer';
 
 const Pricing = () => {
@@ -85,10 +84,10 @@ const Pricing = () => {
 
       <div className="column">
         {pricingPlans.map((plan) => (
-          <div key={plan.id} className={`col-lg-12 mb-4 ${plan.isDefault ? 'default-plan' : ''}`}>
-            <div className={`card pricing-card ${plan.isDefault ? 'default-card' : ''}`}>
+          <div key={plan.id} className={col-lg-12 mb-4 ${plan.isDefault ? 'default-plan' : ''}}>
+            <div className={card pricing-card ${plan.isDefault ? 'default-card' : ''}}>
               <div className="card-body text-center">
-                <h5 className={`card-title ${plan.isDefault ? 'default-title' : ''}`}>{plan.planName}</h5>
+                <h5 className={card-title ${plan.isDefault ? 'default-title' : ''}}>{plan.planName}</h5>
                 <p className="card-text">{plan.description}</p>
                 <h4 className="price">{plan.price}</h4>
                 <ul className="features-list">
@@ -106,7 +105,7 @@ const Pricing = () => {
                       price: plan.price,
                     },
                   }}
-                  className={`btn ${plan.isDefault ? 'btn-default' : 'btn-bordered'} mt-2`}
+                  className={pricing-link ${plan.isDefault ? 'default-plan-link' : 'border-link'} mt-2}
                 >
                   Order Now
                 </Link>

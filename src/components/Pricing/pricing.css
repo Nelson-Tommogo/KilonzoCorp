@@ -1,162 +1,122 @@
-/* General styles */
-.pricing-container {
-  margin-top: 50px;
-  padding: 0 5px; /* Add padding to keep space on the sides */
+/* General Styling */
+.heading {
+    font-family: 'Poppins';
+    font-size: 30px;
+    font-weight: 500;
+    color: #ff4c0a;
+    margin-top: 77px;
+    margin-bottom: 0;
 }
 
-.pricing-header h2 {
-  font-size: 32px;
-  color: #333;
-  font-weight: bold;
-  text-align: center;
+.subHeading {
+    font-family: 'Poppins';
+    font-size: 34px;
+    font-weight: bold;
+    color: rgb(56, 79, 108);
+    margin-top: 36px;
 }
 
-.pricing-header p {
-  font-size: 16px;
-  color: #777;
-  text-align: center;
-  margin-top: 10px;
+.content {
+    font-family: 'Poppins';
+    font-size: 18px;
+    color: #000000;
+    margin-top: 14px;
+    width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 70px;
 }
 
-/* Grid Layout for Pricing Plans */
-.column {
-  display: grid;  /* Use grid for better control */
-  gap: 99px; /* Adjusted gap between cards */
-  margin-top: 10px;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive grid */
+/* Container Styling */
+.containerLeft, .containerRight {
+    padding: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-size: cover;
+    background-position: center;
+    color: white;
+    border-radius: 8px;
+    margin-bottom: 30px; /* Space between containers */
 }
 
-.card {
-  width: 120%; /* Takes full width within its column */
-  max-width: 400px; /* Maximum width to avoid stretching */
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease-in-out;
-  padding: 10px;
-  background-color: #fff;
-  margin: 0 auto; /* Centers the card */
+.containerLeft {
+    background-color: #f0f4f7; /* Light blue background for left container */
+    background-image: url('https://via.placeholder.com/600x400?text=About+KilonzoCorp'); /* Add your image */
 }
 
-.card:hover {
-  transform: scale(1.05);
+.containerRight {
+    background-color: #ececec; /* Light gray background for right container */
+    background-image: url('https://via.placeholder.com/600x400?text=Fueling+Innovation'); /* Add your image */
 }
 
-.card-body {
-  padding: 10px;
-  text-align: center;
+/* Add margin-right to left container for space between */
+@media screen and (min-width: 992px) {
+    .containerLeft {
+        margin-right: 20px; /* Space between the two containers */
+    }
 }
 
-.card-title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
+/* Text wrapping and centering */
+.textWrapper {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
-.price {
-  font-size: 22px;
-  font-weight: bold;
-  color: #000;
-  margin: 10px 0;
+/* Responsive Styles */
+@media screen and (max-width: 1200px) {
+    .containerLeft, .containerRight {
+        padding: 30px;
+        height: 350px; /* Ensure consistent height on medium screens */
+    }
 }
 
-.features-list {
-  list-style-type: none;
-  padding-left: 0;
-  margin-top: 10px; /* Adds spacing above the features list */
-  text-align: left; /* Aligns the text to the left */
+@media screen and (max-width: 992px) {
+    .heading {
+        font-size: 25px;
+        margin-top: 60px;
+    }
+
+    .subHeading {
+        font-size: 29px;
+        margin-top: 30px;
+    }
+
+    .containerLeft, .containerRight {
+        padding: 20px;
+        height: 300px; /* Adjust height for smaller screens */
+    }
+
+    /* Remove extra margin between containers for smaller screens */
+    .containerLeft, .containerRight {
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
 }
 
-.feature-item {
-  font-size: 16px;
-  color: #555;
-  display: flex;
-  align-items: center; /* Ensures the text and the icon are vertically aligned */
-  margin-bottom: 8px; /* Adds space between items */
+@media screen and (max-width: 768px) {
+    .content {
+        width: 100%; /* Full width content */
+    }
+
+    .containerLeft, .containerRight {
+        height: 280px; /* Adjust height for very small screens */
+    }
 }
 
-.feature-item .tick {
-  color: green;
-  margin-right: 10px; /* Adds space between the tick and the text */
-}
+@media screen and (max-width: 650px) {
+    .heading {
+        font-size: 20px;
+        margin-top: 40px;
+    }
 
-.feature-item .cross {
-  color: red;
-  margin-right: 10px; /* Adds space between the cross and the text */
-}
+    .subHeading {
+        font-size: 24px;
+        margin-top: 20px;
+    }
 
-/* Styling for default plan (Pro Plan) */
-.default-plan .card {
-  border: 2px solid #00796b;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  background-color: #e0f2f1;
-}
-
-.default-title {
-  color: #00796b;
-}
-
-.default-card {
-  background-color: #e0f2f1;
-}
-/* General Button Styling */
-.btn {
-  border: 2px solid #00796b;
-  background-color: transparent; /* Non-default buttons have transparent background */
-  color: #00796b;
-  padding: 12px 20px;
-  font-weight: bold;
-  border-radius: 5px;
-  text-align: center;
-  display: inline-block;
-  text-decoration: none;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.btn-default {
-  background-color: #00796b;
-  color: white;
-  border-color: #00796b;
-  border: 3px solid red; /* Temporary Debug Border */
-}
-
-.btn-bordered {
-  background-color: transparent;
-  color: #00796b;
-  border-color: #00796b;
-  border: 3px dashed blue; /* Temporary Debug Border */
-}
-
-/* Hover States for Debugging */
-.btn:hover {
-  background-color: #00796b;
-  color: white;
-}
-
-.btn-default:hover {
-  background-color: #004d40;
-  border-color: #004d40;
-}
-
-.btn-bordered:hover {
-  background-color: #00796b;
-  color: white;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 1024px) {
-  .column {
-    grid-template-columns: repeat(2, 1fr); /* 2 columns for medium screens */
-  }
-}
-
-@media (max-width: 768px) {
-  .column {
-    grid-template-columns: 1fr; /* Stacks all plans vertically on small screens */
-  }
-
-  .card {
-    width: 80%; /* Makes the card take most of the screen width on small devices */
-    margin-bottom: 20px; /* Adds space between the stacked cards */
-  }
+    .containerLeft, .containerRight {
+        height: 250px; /* Smaller height on extra small screens */
+    }
 }
