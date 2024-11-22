@@ -63,7 +63,7 @@ const Footer = () => {
 
                         {/* Column 2 */}
                         <div className={`col-lg-3 col-sm-6 ${styles.contain}`}>
-                            <p className={styles.head}>Our Services</p>
+                            <p className={styles.head}>Useful Links</p>
                             {servicesData.map((service, index) => (
                                 <div key={index}>
                                     <div className={styles.text} onClick={() => toggleService(index)}>
@@ -85,10 +85,12 @@ const Footer = () => {
 
                         {/* Column 3 */}
                         <div className={`col-lg-3 col-sm-6 ${styles.contain}`}>
-                            <p className={styles.head}>Useful Links</p>
-                            <p className={styles.text}>Westlands, Nairobi, Kenya</p>
-                            <p className={styles.text}>contact@kilonzocorp.co.ke</p>
-                            <p className={styles.text}>+254700000000</p>
+                            <p className={styles.head}>Our Services</p>
+                            <p className={styles.text}>Image & Video Annotation</p>
+                            <p className={styles.text}>Text Annotation</p>
+                            <p className={styles.text}>Audio Annotation</p>
+                            <p className={styles.text}>3D Point Cloud Annotation
+</p>
                         </div>
 
                         {/* Column 4 */}
@@ -106,14 +108,6 @@ const Footer = () => {
                             <p className={styles.text}>
                                 <FaTwitter className={styles.icon} /> Twitter: @KilonzoCorp
                             </p>
-                        </div>
-
-                        {/* Column 5 */}
-                        <div className={`col-lg-3 col-sm-6 ${styles.contain}`}>
-                            <p className={styles.head}>Opening Hours</p>
-                            <p className={styles.text}>Mon - Fri : 08:00 - 18:00</p>
-                            <p className={styles.text}>Sat : 10:00 - 16:00</p>
-                            <p className={styles.text}>Support : 24/7</p>
                         </div>
                     </div>
                 </div>

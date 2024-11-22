@@ -10,9 +10,8 @@ const AdminDashboard = () => {
   const [payments, setPayments] = useState([]);
   const [activeUsers, setActiveUsers] = useState([]);
   const [admins, setAdmins] = useState([]);
-  const [logs, setLogs] = useState([]);
   const [userLogs, setUserLogs] = useState([]);
-  
+
   const [newUser, setNewUser] = useState({ name: '', email: '', isVerified: false });
   const [newAdmin, setNewAdmin] = useState({ name: '', email: '' });
 
@@ -34,10 +33,6 @@ const AdminDashboard = () => {
     setAdmins([
       { id: 1, name: 'Admin One', email: 'admin1@example.com' },
       { id: 2, name: 'Admin Two', email: 'admin2@example.com' },
-    ]);
-    setLogs([
-      { id: 1, activity: 'Verified user John Doe', date: '2024-11-20' },
-      { id: 2, activity: 'Deleted user Jane Smith', date: '2024-11-21' },
     ]);
     setUserLogs([
       { id: 1, activity: 'Logged in', user: 'John Doe', timestamp: new Date().toLocaleTimeString() },
@@ -63,33 +58,17 @@ const AdminDashboard = () => {
         user.id === userId ? { ...user, isVerified: true } : user
       )
     );
-    setLogs((prevLogs) => [
-      ...prevLogs,
-      { id: prevLogs.length + 1, activity: `Verified user ${userId}`, date: new Date().toLocaleDateString() }
-    ]);
     setUserLogs((prevLogs) => [
       ...prevLogs,
-      { id: prevLogs.length + 1, activity: 'Verified account', user: userId, timestamp: new Date().toLocaleTimeString() }
+      { id: prevLogs.length + 1, activity: `Verified user ${userId}`, user: userId, timestamp: new Date().toLocaleTimeString() }
     ]);
   };
 
   const handleDeleteUser = (userId) => {
     setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
-    setLogs((prevLogs) => [
-      ...prevLogs,
-      { id: prevLogs.length + 1, activity: `Deleted user ${userId}`, date: new Date().toLocaleDateString() }
-    ]);
     setUserLogs((prevLogs) => [
       ...prevLogs,
-      { id: prevLogs.length + 1, activity: 'Deleted account', user: userId, timestamp: new Date().toLocaleTimeString() }
-    ]);
-  };
-
-  const handleRemoveAdmin = (adminId) => {
-    setAdmins((prevAdmins) => prevAdmins.filter((admin) => admin.id !== adminId));
-    setLogs((prevLogs) => [
-      ...prevLogs,
-      { id: prevLogs.length + 1, activity: `Removed admin with ID ${adminId}`, date: new Date().toLocaleDateString() }
+      { id: prevLogs.length + 1, activity: `Deleted user ${userId}`, user: userId, timestamp: new Date().toLocaleTimeString() }
     ]);
   };
 
@@ -158,6 +137,8 @@ const AdminDashboard = () => {
                 {activeUsers.map((user) => (
                   <li key={user.id} className="user-item">
                     {user.name} - {user.email}
+                    <button onClick={() => handleVerifyUser(user.id)} className="btn btn-verify">Verify</button>
+                    <button onClick={() => handleDeleteUser(user.id)} className="btn btn-delete">Delete</button>
                   </li>
                 ))}
               </ul>
