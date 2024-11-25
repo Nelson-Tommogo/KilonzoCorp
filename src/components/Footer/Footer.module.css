@@ -131,7 +131,7 @@
 /* Newsletter Section */
 .newsletterContainer {
     position: relative;
-    background-color: #285a77;
+    background-color: #017E84;
     padding: 40px;
     margin: 0 auto;
     margin-bottom: -50px; /* Overlap the footer */
@@ -178,7 +178,7 @@
 }
 
 .subscribeButton:hover {
-    background-color: #e1b000;
+    background-color: #0c0c0a;
 }
 
 /* Adjustments for Socials Section */

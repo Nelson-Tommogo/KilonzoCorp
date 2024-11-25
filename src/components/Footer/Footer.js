@@ -113,7 +113,7 @@ const Footer = () => {
             </div>
 
             {/* Copyright Section */}
-            <div style={{ backgroundColor: '#285a77', borderTop: 'solid 1px #707070' }}>
+            <div style={{ backgroundColor: '#017E84', borderTop: 'solid 1px #707070' }}>
                 <p className={styles.bottom}>Copyright © 2024 Kilonzocorp. All rights reserved</p>
             </div>
         </>
