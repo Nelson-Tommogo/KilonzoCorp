@@ -7,8 +7,8 @@ const Pricing = () => {
   const pricingPlans = [
     {
       id: 1,
-      planName: 'Free Trial Plan',
-      price: '$1999.49 / project',
+      planName: 'Test  Plan',
+      price: '$10 / project',
       description: 'Perfect for smaller projects with essential features.',
       features: [
         'Image & Video Annotation (Up to 10,000 labels)',

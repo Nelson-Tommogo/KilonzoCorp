@@ -9,7 +9,7 @@
 
 .sub_text {
     font-size: 20px;
-    color: rgb(58, 95, 126);
+    color: rgb(100, 100, 100);
     margin-top: 23px;
     margin-bottom: 90px;
 }
@@ -17,13 +17,13 @@
 .logo_head {
     font-size: 22px;
     font-weight: bold;
-    color: rgb(58, 95, 126);
+    color: rgb(255, 255, 255);
     margin-top: 24px;
 }
 
 .logo_text {
     font-size: 16px;
-    color: rgb(17,17,17);
+    color: rgb(255, 255, 255);
     margin-top: 19px;
     margin-left: 40px;
     margin-right: 40px;
@@ -44,7 +44,7 @@
 }
 
 .box {
-    background-color: #f0f0f0;
+    background-color: #017E84;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);

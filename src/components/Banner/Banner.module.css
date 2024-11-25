@@ -16,7 +16,7 @@
 }
 
 .textContainer {
-    background-color: rgba(143, 67, 67, 0.5); /* Grey background with transparency */
+    background-color: #017E84; /* Grey background with transparency */
     padding: 20px;
     border-radius: 10px;
     margin: 0 auto;
@@ -118,7 +118,7 @@
     z-index: 3; /* Ensure arrows are above the images */
     cursor: pointer;
     color: #fff;
-    background-color: #05361e;
+    background-color: #017E84;
     padding: 10px;
     border-radius: 50%;
     display: flex;

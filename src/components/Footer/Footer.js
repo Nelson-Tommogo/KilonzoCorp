@@ -4,10 +4,8 @@ import { FiChevronDown } from 'react-icons/fi';
 import { FaFacebook, FaTiktok, FaInstagram, FaTwitter } from 'react-icons/fa';
 
 const servicesData = [
-    { name: 'Image & Video Annotation', number: '+254700000000', color: '#fefefe' },
-    { name: 'Text Annotation', number: '+254700000000', color: '#fefefe' },
-    { name: 'Audio Annotation', number: '+254700000000', color: '#fefefe' },
-    { name: '3D Point Cloud Annotation', number: '+254700000000', color: '#fefefe' },
+    { name: 'Refund Policy', pdfUrl: '/pdfs/refund-policy.pdf' },
+    { name: 'Terms and Condition', pdfUrl: '/pdfs/terms-and-condition.pdf' },
 ];
 
 const Footer = () => {
@@ -73,10 +71,12 @@ const Footer = () => {
                                     {openService === index && (
                                         <div
                                             className={styles.text}
-                                            style={{ cursor: 'pointer', color: service.color }}
-                                            onClick={() => window.location.href = `tel:${service.number}`}
+                                            style={{ cursor: 'pointer' }}
                                         >
-                                            Call {service.number}
+                                            {/* Link to the PDF */}
+                                            <a href={service.pdfUrl} target="_blank" rel="noopener noreferrer">
+                                                View {service.name}
+                                            </a>
                                         </div>
                                     )}
                                 </div>
@@ -89,8 +89,7 @@ const Footer = () => {
                             <p className={styles.text}>Image & Video Annotation</p>
                             <p className={styles.text}>Text Annotation</p>
                             <p className={styles.text}>Audio Annotation</p>
-                            <p className={styles.text}>3D Point Cloud Annotation
-</p>
+                            <p className={styles.text}>3D Point Cloud Annotation</p>
                         </div>
 
                         {/* Column 4 */}

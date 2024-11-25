@@ -7,7 +7,7 @@
     font-family: 'Poppins';
     font-size: 30px;
     font-weight: 500;
-    color: #6C4D38;
+    color: #017E84;
     margin-bottom: 13px;
 }
 
@@ -15,7 +15,7 @@
     display: inline;
     font-size: 34px;
     font-weight: bold;
-    color: #000;
+    color: #fdfdfd;
 }
 
 .study {
@@ -27,7 +27,7 @@
 
 .serviceContainer {
     padding: 20px;
-    border: 1px solid #ddd;
+    border: 1px solid #017E84;
     border-radius: 10px;
     background-color: #f9f9f9;
     transition: box-shadow 0.3s, transform 0.3s;
@@ -45,7 +45,7 @@
 /* Icon placement and styling */
 .icon {
     font-size: 60px; /* Larger size for icons */
-    color: #6C4D38;
+    color: #017E84;
     margin-bottom: 20px; /* Space below the icon */
     transition: transform 0.3s, color 0.3s;
 }
@@ -54,12 +54,12 @@
 .serviceContainer:hover {
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* Stronger shadow */
     transform: translateY(-5px); /* Lift effect */
-    background-color: #f2efe7; /* Subtle background change */
+    background-color: #478696; /* Subtle background change */
 }
 
 .serviceContainer:hover .icon {
     transform: scale(1.2); /* Enlarge icon on hover */
-    color: #e0a57d; /* Change icon color */
+    color: #000000; /* Change icon color */
 }
 
 /* Title and description styling */
