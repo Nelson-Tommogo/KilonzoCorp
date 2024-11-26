@@ -1,84 +1,86 @@
-import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import './checkout.css';  // Assuming you will save the CSS file as Checkout.css
+import React, { useState } from "react";
+import safImage from "./saf.png";
+import paylineImage from "./payline.png";
+import mpesaImage from "./mpesa.webp";
+import paylineLogo from "./pay.png";
+import "./checkout.css";
 
 const Checkout = () => {
-  const location = useLocation();
-  const { planName, price } = location.state || {};  // Accessing the planName and price from state
-
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
+  const [showForm, setShowForm] = useState(false);
 
-  // Function to handle payment method selection
-  const handlePaymentMethodChange = (event) => {
-    setSelectedPaymentMethod(event.target.value);
+  const handlePaymentSelection = (method) => {
+    setSelectedPaymentMethod(method);
+    setShowForm(true); // Display the form when a payment method is selected
   };
 
-  // Function to handle the payment button click
-  const handlePaymentClick = () => {
-    if (selectedPaymentMethod === 'mpesa') {
-      // Placeholder for M-Pesa integration
-      alert('Redirecting to M-Pesa for payment...');
-      // Implement the M-Pesa API integration here
-    } else if (selectedPaymentMethod === 'payline') {
-      // Placeholder for Payline integration
-      alert('Redirecting to Payline for payment...');
-      // Implement the Payline API integration here
-    }
+  const handleCloseForm = () => {
+    setShowForm(false);
   };
 
   return (
     <div className="checkout-container">
       <h2>Checkout</h2>
+      <h3>Select Your Payment Plan</h3>
 
-      {/* Display selected plan and price */}
-      {planName && price ? (
-        <div className="checkout-details">
-          <h3>Your Selected Plan: {planName}</h3>
-          <h4>Price: {price}</h4>
+      {/* Payment Options Section */}
+      <div className="payment-options">
+        {/* M-Pesa */}
+        <div
+          className="payment-card"
+          onClick={() => handlePaymentSelection("mpesa")}
+        >
+          <img
+            src={safImage}
+            alt="M-Pesa"
+            className="payment-image"
+          />
+          <h4>M-Pesa</h4>
         </div>
-      ) : (
-        <p>No plan selected.</p>
+
+        {/* Payline */}
+        <div
+          className="payment-card"
+          onClick={() => handlePaymentSelection("payline")}
+        >
+          <img
+            src={paylineImage}
+            alt="Payline"
+            className="payment-image"
+          />
+          <h4>Payline</h4>
+        </div>
+      </div>
+
+      {/* Pop-up Form */}
+      {showForm && (
+        <div className="popup-form">
+          <div className="form-content">
+            <img
+              src={selectedPaymentMethod === "mpesa" ? mpesaImage : paylineLogo}
+              alt={selectedPaymentMethod}
+              className="form-image"
+            />
+            <h3>{selectedPaymentMethod === "mpesa" ? "M-Pesa" : "Payline"}</h3>
+
+            {selectedPaymentMethod === "mpesa" && (
+              <div className="form-field">
+                <label htmlFor="phone-number">Phone Number:</label>
+                <input
+                  type="tel"
+                  id="phone-number"
+                  placeholder="Enter your phone number"
+                />
+              </div>
+            )}
+
+            <button className="proceed-button">Proceed</button>
+            <button className="close-button" onClick={handleCloseForm}>
+              Close
+            </button>
+          </div>
+        </div>
       )}
-
-      {/* Payment Method Selection */}
-      <h3>Choose Your Payment Method</h3>
-
-      {/* M-Pesa option */}
-      <div className="payment-option">
-        <input
-          type="radio"
-          id="mpesa"
-          name="payment-method"
-          value="mpesa"
-          checked={selectedPaymentMethod === 'mpesa'}
-          onChange={handlePaymentMethodChange}
-        />
-        <label htmlFor="mpesa">M-Pesa</label>
-      </div>
-
-      {/* Payline option */}
-      <div className="payment-option">
-        <input
-          type="radio"
-          id="payline"
-          name="payment-method"
-          value="payline"
-          checked={selectedPaymentMethod === 'payline'}
-          onChange={handlePaymentMethodChange}
-        />
-        <label htmlFor="payline">Payline</label>
-      </div>
-
-      {/* Proceed to Payment button */}
-      <button
-        className="payment-button"
-        onClick={handlePaymentClick}
-        disabled={!selectedPaymentMethod}
-      >
-        Proceed to Payment
-      </button>
-
-      <p className="info">Choose a payment method to continue the checkout process.</p>
     </div>
   );
 };
