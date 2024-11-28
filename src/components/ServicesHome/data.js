@@ -26,7 +26,7 @@ const data = [
     },
     {
         id: 6,
-        heading: "What are your pricing options?",
+        heading: "What are your pricing options?", 
         content: "We offer flexible pricing plans designed to scale with your data annotation needs, from essential services to comprehensive, enterprise-level solutions. For detailed information, please visit our Pricing page.",
     },
     {
