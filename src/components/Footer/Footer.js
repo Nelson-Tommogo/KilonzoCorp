@@ -4,8 +4,14 @@ import { FiChevronDown } from 'react-icons/fi';
 import { FaFacebook, FaTiktok, FaInstagram, FaTwitter } from 'react-icons/fa';
 
 const servicesData = [
-    { name: 'Refund Policy', pdfUrl: '/pdfs/refund-policy.pdf' },
-    { name: 'Terms and Condition', pdfUrl: '/pdfs/terms-and-condition.pdf' },
+    { 
+        name: 'Refund Policy', 
+        pdfUrl: 'https://drive.google.com/file/d/1toxONjcUFOyNTN-SDSR-P677CXBmiKIk/view?usp=sharing' 
+    },
+    { 
+        name: 'Terms and Condition', 
+        pdfUrl: 'https://drive.google.com/file/d/1v70c5INqmEDTxCVw_Y0Jm1hbsCQAbkDY/view?usp=sharing' 
+    },
 ];
 
 const Footer = () => {
