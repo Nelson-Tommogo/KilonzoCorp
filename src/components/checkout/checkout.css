@@ -10,10 +10,14 @@
 
 h2 {
   margin-bottom: 10px;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 h3 {
   margin-bottom: 20px;
+  font-size: 20px;
+  color: #555;
 }
 
 .payment-options {
@@ -30,11 +34,13 @@ h3 {
   border-radius: 10px;
   padding: 10px;
   transition: 0.3s ease;
+  background-color: #f9f9f9;
 }
 
 .payment-card:hover {
   border-color: #00796b;
   background-color: #e0f7fa;
+  transform: scale(1.05);
 }
 
 .payment-image {
@@ -49,56 +55,65 @@ h3 {
   margin: 0;
 }
 
-/* Pop-up Form */
 .popup-form {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: fixed; /* Ensures the form is always visible */
+  top: 50%; /* Center vertically */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%); /* Adjust for exact centering */
+  z-index: 1000; /* Ensure it stays above other UI elements */
+  background-color: rgba(255, 255, 255, 0.95); /* Slight transparency for focus */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25); /* Floating shadow */
+  border-radius: 10px;
+  max-width: 400px;
+  width: 90%; /* Responsive */
+  overflow-y: auto; /* Adds a scrollbar if content exceeds screen height */
+  max-height: 90%; /* Prevents form from overflowing the viewport */
 }
+
 
 .form-content {
   background: white;
-  padding: 20px;
-  border-radius: 10px;
+  padding: 30px;
+  border-radius: 15px;
   text-align: center;
   width: 90%;
   max-width: 400px;
   position: relative;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  margin: 20px; /* Added margin for extra spacing */
 }
 
 .form-image {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   margin-bottom: 10px;
 }
 
 .form-field {
-  margin: 15px 0;
+  margin: 20px 0;
   text-align: left;
 }
 
 .form-field label {
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
   display: block;
   margin-bottom: 5px;
 }
 
-.form-field input {
+.form-field input,
+.form-field select {
   width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 16px;
+  box-sizing: border-box; /* Ensures padding does not break the layout */
 }
 
 .proceed-button {
-  padding: 10px 20px;
+  padding: 12px 20px;
   background-color: #00796b;
   color: white;
   border: none;
@@ -107,6 +122,8 @@ h3 {
   margin-top: 10px;
   display: block;
   width: 100%;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
 }
 
 .proceed-button:hover {
@@ -117,11 +134,22 @@ h3 {
   margin-top: 10px;
   padding: 10px;
   background-color: #ccc;
+  color: #333;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 14px;
 }
 
 .close-button:hover {
   background-color: #999;
+}
+
+/* Error Message */
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: -10px;
+  margin-bottom: 20px;
+  text-align: left;
 }

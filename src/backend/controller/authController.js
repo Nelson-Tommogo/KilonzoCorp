@@ -1,4 +1,3 @@
-// controllers/authController.js
 import { genSaltSync, hashSync, compareSync } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
 import { query } from '../config/db';
