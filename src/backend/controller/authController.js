@@ -1,8 +1,11 @@
-import { genSaltSync, hashSync, compareSync } from 'bcryptjs';
-import { sign } from 'jsonwebtoken';
-import { query } from '../config/db';
-import { JWT_SECRET } from '../config/jwtConfig';
-import { sendVerificationEmail } from '../utils/emailService';
+import bcrypt from 'bcryptjs'; // Import bcryptjs as a single default import
+import jwt from 'jsonwebtoken'; // Import the entire jsonwebtoken module
+import jwtConfig from '../config/jwtConfig.js';
+import { query } from '../config/db.js';
+import { sendVerificationEmail } from '../utils/emailService.js';
+
+const { genSaltSync, hashSync, compareSync } = bcrypt; // Destructure bcrypt methods once
+const { sign } = jwt; // Destructure sign from the jsonwebtoken module
 
 // **Signup**
 export function signup(req, res) {
@@ -63,8 +66,8 @@ export function login(req, res) {
     }
 
     // Generate JWT token
-    const token = sign({ email: user.email, id: user.id }, JWT_SECRET, {
-      expiresIn: '1h',
+    const token = sign({ email: user.email, id: user.id }, jwtConfig.secret, {
+      expiresIn: jwtConfig.expiresIn,
     });
 
     res.status(200).json({ message: 'Login successful', token });
@@ -75,15 +78,24 @@ export function login(req, res) {
 export function resetPassword(req, res) {
   const { email, newPassword } = req.body;
 
-  // Hash the new password
-  const salt = genSaltSync(10);
-  const hashedPassword = hashSync(newPassword, salt);
-
-  // Update password in the database
-  query('UPDATE Users SET passwordHash = ? WHERE email = ?', [hashedPassword, email], (err, result) => {
+  // Check if user exists before updating password
+  query('SELECT * FROM Users WHERE email = ?', [email], (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
 
-    res.status(200).json({ message: 'Password reset successful' });
+    if (result.length === 0) {
+      return res.status(400).json({ message: 'Email not found' });
+    }
+
+    // Hash the new password
+    const salt = genSaltSync(10);
+    const hashedPassword = hashSync(newPassword, salt);
+
+    // Update password in the database
+    query('UPDATE Users SET passwordHash = ? WHERE email = ?', [hashedPassword, email], (err, _result) => {
+      if (err) return res.status(500).json({ error: err.message });
+
+      res.status(200).json({ message: 'Password reset successful' });
+    });
   });
 }
 
@@ -91,10 +103,19 @@ export function resetPassword(req, res) {
 export function verifyUser(req, res) {
   const { email } = req.params;
 
-  // Update the user as verified
-  query('UPDATE Users SET isVerified = 1 WHERE email = ?', [email], (err, result) => {
+  // Ensure the user exists before verification
+  query('SELECT * FROM Users WHERE email = ?', [email], (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
 
-    res.status(200).json({ message: 'User verified successfully' });
+    if (result.length === 0) {
+      return res.status(400).json({ message: 'User not found' });
+    }
+
+    // Update the user as verified
+    query('UPDATE Users SET isVerified = 1 WHERE email = ?', [email], (err, _result) => {
+      if (err) return res.status(500).json({ error: err.message });
+
+      res.status(200).json({ message: 'User verified successfully' });
+    });
   });
 }

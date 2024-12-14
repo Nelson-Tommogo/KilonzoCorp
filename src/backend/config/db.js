@@ -3,21 +3,21 @@ import { config } from 'dotenv';
 
 config(); 
 
-const db = async () => {
-  try {
-    const connection = await mysql.createConnection({
-      host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-    });
+const pool = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+});
 
-    console.log('Database connected successfully!');
-    return connection;
+export const query = async (sql, params) => {
+  try {
+    const [results] = await pool.execute(sql, params);
+    return results;
   } catch (error) {
-    console.error('Error connecting to the database:', error.message);
-    process.exit(1); 
+    console.error('Database query error:', error.message);
+    throw error;
   }
 };
 
-export default db;
+export default pool;
