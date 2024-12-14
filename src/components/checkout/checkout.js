@@ -98,7 +98,7 @@ const Checkout = () => {
 
         const result = await response.json();
         alert(`Payment Success: ${result.message}. Our team will reach out to you shortly.`);
-        setShowForm(false); // Hide form after success
+        setShowForm(false); 
       } catch (error) {
         setErrorMessage(`Payline Payment Failed: ${error.message || "Unable to process payment. Please try again later."}`);
       }
@@ -107,7 +107,6 @@ const Checkout = () => {
     }
   };
 
-  // Component to display error messages in a dialog box
   const ErrorDialog = ({ message, onClose }) => (
     <div className="error-dialog">
       <div className="error-dialog-content">
