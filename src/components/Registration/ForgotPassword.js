@@ -1,29 +1,37 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import styles from './ForgotPassword.module.css'; 
-import { sendPasswordResetEmail } from 'firebase/auth'; 
-import { auth } from '../../firebase'; 
+import styles from './ForgotPassword.module.css';
+import axios from 'axios'; // Use axios for backend API calls
 import Modal from 'react-modal';
-import { FaCheckCircle, FaExclamationCircle } from 'react-icons/fa'; // Import icons
+import { FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleChange = (e) => {
-    setEmail(e.target.value);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      setErrorMessage("Passwords do not match");
+      setIsErrorModalOpen(true);
+      return;
+    }
+
     try {
-      await sendPasswordResetEmail(auth, email);
+      // Send reset password request to your backend
+      await axios.post('https://your-backend-api.com/api/v1/auth/reset-password', {
+        email,
+        newPassword,
+        confirmPassword,
+      });
       setIsSuccessModalOpen(true);
     } catch (error) {
-      setErrorMessage(error.message);
-      setIsErrorModalOpen(true); 
+      setErrorMessage(error.response?.data?.message || 'An error occurred');
+      setIsErrorModalOpen(true);
     }
   };
 
@@ -34,10 +42,9 @@ const ForgotPassword = () => {
 
   return (
     <div className={styles.forgotPasswordContainer}>
-      <h2 className={styles.title}>Forgot Password</h2>
-
+      <h2 className={styles.title}>Reset Password</h2>
       <p className={styles.description}>
-        Enter your email address below, and we'll send you a link to reset your password.
+        Enter your email and new password below to reset your password.
       </p>
 
       <form onSubmit={handleSubmit} className={styles.form}>
@@ -46,12 +53,29 @@ const ForgotPassword = () => {
           name="email"
           placeholder="Email"
           value={email}
-          onChange={handleChange}
+          onChange={(e) => setEmail(e.target.value)}
           required
           className={styles.inputField}
         />
-
-        <button type="submit" className={styles.submitButton}>Send Reset Link</button>
+        <input
+          type="password"
+          name="newPassword"
+          placeholder="New Password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          required
+          className={styles.inputField}
+        />
+        <input
+          type="password"
+          name="confirmPassword"
+          placeholder="Confirm New Password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+          className={styles.inputField}
+        />
+        <button type="submit" className={styles.submitButton}>Reset Password</button>
       </form>
 
       <p className={styles.backLink}>
@@ -62,14 +86,14 @@ const ForgotPassword = () => {
       <Modal
         isOpen={isSuccessModalOpen}
         onRequestClose={closeModal}
-        contentLabel="Password Reset Email Sent"
+        contentLabel="Password Reset Success"
         className={styles.modal}
         overlayClassName={styles.overlay}
       >
         <div className={styles.modalContent}>
           <FaCheckCircle className={styles.successIcon} />
-          <h2>Password Reset Email Sent</h2>
-          <p>An email has been sent to {email} with instructions to reset your password.</p>
+          <h2>Password Successfully Reset</h2>
+          <p>Your password has been reset successfully. You can now log in with your new password.</p>
           <button onClick={closeModal} className={styles.modalButton}>Close</button>
         </div>
       </Modal>
@@ -78,13 +102,13 @@ const ForgotPassword = () => {
       <Modal
         isOpen={isErrorModalOpen}
         onRequestClose={closeModal}
-        contentLabel="Error Sending Email"
+        contentLabel="Error Resetting Password"
         className={styles.modal}
         overlayClassName={styles.overlay}
       >
         <div className={styles.modalContent}>
           <FaExclamationCircle className={styles.errorIcon} />
-          <h2>Error Sending Email</h2>
+          <h2>Error Resetting Password</h2>
           <p>{errorMessage}</p>
           <button onClick={closeModal} className={styles.modalButton}>Close</button>
         </div>

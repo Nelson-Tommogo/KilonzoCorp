@@ -1,7 +1,7 @@
 import express, { json } from 'express';
 import { config } from 'dotenv';
-import authRoutes from './route/authRoutes.js'; // Import routes
-import { query } from './config/db.js'; // Import the query function to execute database queries
+import authRoutes from './route/authRoutes.js';
+import { query } from './config/db.js'; 
 
 // Load environment variables
 config();

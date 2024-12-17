@@ -85,6 +85,7 @@ const NavbarMain = () => {
                 Pricing
               </NavLink>
 
+              {/* More Insights Dropdown */}
               <NavDropdown
                 title={
                   <span className={`${styles.nav_text} nav-link`}>
@@ -95,11 +96,14 @@ const NavbarMain = () => {
                 align="end"
                 style={{ marginTop: "8px" }}
               >
-                <NavDropdown.Item as={NavLink} to="/contactUs">
-                  Contact Us
-                </NavDropdown.Item>
                 <NavDropdown.Item as={NavLink} to="/aboutus">
                   About Us
+                </NavDropdown.Item>
+                <NavDropdown.Item as={NavLink} to="/blog">
+                  Blog
+                </NavDropdown.Item>
+                <NavDropdown.Item as={NavLink} to="/contactUs">
+                  Contact Us
                 </NavDropdown.Item>
               </NavDropdown>
 

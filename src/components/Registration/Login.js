@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom'; 
-import { signInWithEmailAndPassword } from 'firebase/auth'; 
-import { auth } from '../../firebase'; 
+import axios from 'axios'; // Import axios
 import styles from './Login.module.css'; 
 import { FaGoogle, FaEye, FaEyeSlash } from 'react-icons/fa'; 
 
@@ -27,13 +26,28 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
-      console.log("User logged in, Enjoy Mebiut", userCredential.user);
+      // Make a POST request to your backend API
+      const response = await axios.post('https://your-backend-api.com/api/v1/auth/login', {
+        email: formData.email,
+        password: formData.password,
+      });
 
-      // Show success dialog
-      setShowSuccessDialog(true);
+      // Check the response and handle success
+      if (response.data.success) {
+        console.log("User logged in, Enjoy Mebiut", response.data);
+        
+        // Store token or user info in local storage or context (for session management)
+        localStorage.setItem('authToken', response.data.token);
+        
+        // Show success dialog
+        setShowSuccessDialog(true);
+      } else {
+        setError(response.data.message); // Show the error message from backend
+        setShowErrorDialog(true); // Show error dialog on failure
+      }
     } catch (error) {
-      setError(error.message);
+      console.error('Login failed:', error);
+      setError('An error occurred while logging in. Please try again later.');
       setShowErrorDialog(true); // Show error dialog on failure
     }
   };

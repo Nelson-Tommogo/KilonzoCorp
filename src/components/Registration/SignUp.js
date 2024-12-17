@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import styles from './SignUp.module.css';
 import { FaGoogle, FaEye, FaEyeSlash } from 'react-icons/fa'; 
-import { createUserWithEmailAndPassword } from 'firebase/auth'; 
-import { auth } from '../../firebase';
 import Modal from 'react-modal'; 
+import axios from 'axios'; // Import axios
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -36,12 +35,22 @@ const SignUp = () => {
       setError("Passwords do not match");
       return;
     }
+
+    // Send data to backend API
     try {
-      await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-      setIsSuccessModalOpen(true); 
+      const response = await axios.post('http://localhost:5000/signup', {
+        email: formData.email,
+        name: formData.name,
+        contact: formData.contact,
+        password: formData.password,
+      });
+
+      if (response.status === 201) {
+        setIsSuccessModalOpen(true); // Show success modal
+      }
     } catch (error) {
-      setErrorMessage(error.message); 
-      setIsErrorModalOpen(true);
+      setErrorMessage(error.response ? error.response.data.message : 'Something went wrong');
+      setIsErrorModalOpen(true); // Show error modal
     }
   };
 
@@ -52,7 +61,7 @@ const SignUp = () => {
 
   const handleSuccessContinue = () => {
     setIsSuccessModalOpen(false);
-    navigate('/login'); 
+    navigate('/login'); // Navigate to login page after success
   };
 
   return (
@@ -63,7 +72,7 @@ const SignUp = () => {
         Already have an account? <NavLink to="/login" className={styles.link}>Log in</NavLink>
       </p>
 
-      {error && <p className={styles.errorText}>{error}</p>} {}
+      {error && <p className={styles.errorText}>{error}</p>}
 
       <form onSubmit={handleSubmit} className={styles.signupForm}>
         <input
