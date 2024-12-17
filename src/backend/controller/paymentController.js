@@ -1,6 +1,7 @@
+import axios from "axios"; // Correct import for axios
+import { createPayment, getPaymentByTransactionId } from "../models/Payment.js"; // Correct imports
+import { pool } from "../config/db.js"; // Import the pool from db.js
 require("dotenv").config();
-const axios = require("axios");
-const Payment = require("../models/Payment");
 
 // Generate timestamp
 const generateTimestamp = () => {
@@ -42,7 +43,7 @@ const sendStkPush = async (req, res) => {
     );
 
     // Save payment to DB
-    const payment = await Payment.create({
+    const payment = await createPayment({
       phoneNumber,
       amount,
       checkoutRequestId: response.data.CheckoutRequestID,
@@ -51,7 +52,7 @@ const sendStkPush = async (req, res) => {
 
     res.status(200).json({
       message: "STK Push initiated successfully",
-      paymentId: payment._id,
+      paymentId: payment.insertId, // Use the correct field for the inserted payment ID
     });
   } catch (error) {
     res.status(500).json({ message: "STK Push failed", error: error.message });
@@ -86,11 +87,15 @@ const queryTransactionStatus = async (req, res) => {
     );
 
     // Update payment status in DB
-    const payment = await Payment.findOneAndUpdate(
-      { checkoutRequestId },
-      { status: response.data.ResultCode === "0" ? "Completed" : "Failed" },
-      { new: true }
-    );
+    const payment = await getPaymentByTransactionId(checkoutRequestId);
+
+    if (!payment || payment.length === 0) {
+      return res.status(404).json({ message: "Payment not found" });
+    }
+
+    // Update status based on query result
+    payment.status = response.data.ResultCode === "0" ? "Completed" : "Failed";
+    await updatePaymentStatus(payment);
 
     res.status(200).json({ message: "Transaction status retrieved", payment });
   } catch (error) {
@@ -121,10 +126,13 @@ const handleCallback = async (req, res) => {
       )?.Value,
     };
 
-    await Payment.findOneAndUpdate(
-      { checkoutRequestId: CheckoutRequestID },
-      updates
-    );
+    const payment = await getPaymentByTransactionId(CheckoutRequestID);
+    if (!payment) {
+      return res.status(404).json({ message: "Payment not found" });
+    }
+
+    // Update the payment status and other fields
+    await updatePaymentStatus(payment, updates);
 
     res.status(200).json({ message: "Callback handled successfully" });
   } catch (error) {
@@ -134,4 +142,23 @@ const handleCallback = async (req, res) => {
   }
 };
 
-module.exports = { sendStkPush, queryTransactionStatus, handleCallback };
+// Helper function to update payment status
+const updatePaymentStatus = async (payment, updates) => {
+  const { checkoutRequestId, status, transactionId, receiptNumber } = updates;
+  const query = `
+    UPDATE payments
+    SET status = ?, transactionId = ?, receiptNumber = ?
+    WHERE checkoutRequestId = ?
+  `;
+  const params = [status, transactionId, receiptNumber, checkoutRequestId];
+
+  try {
+    // Execute the query with the pool
+    await pool.execute(query, params);
+  } catch (error) {
+    console.error("Error updating payment status:", error.message);
+    throw error; // Propagate the error
+  }
+};
+
+export default { sendStkPush, queryTransactionStatus, handleCallback };
