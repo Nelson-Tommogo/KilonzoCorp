@@ -1,7 +1,6 @@
-// controllers/paymentController.js
-import { post } from 'axios';
+import axios from 'axios'; // Correctly import the entire axios instance
 import moment from 'moment';
-import Transaction from '../models/Transaction.js';  // Ensure you have this model
+import Transaction from '../models/Transaction.js';
 
 // 1. Send STK Push (PayBill)
 const sendStkPush = async (req, res) => {
@@ -46,7 +45,7 @@ const sendStkPush = async (req, res) => {
     };
 
     // Send the STK push request to Safaricom PayBill API
-    const response = await post(
+    const response = await axios.post(
       `${process.env.BASE_URL}/mpesa/stkpush/v1/processrequest`,
       requestBody,
       { headers }
@@ -159,7 +158,7 @@ const stkQuery = async (req, res) => {
     };
 
     // Send the STK Query request to Safaricom API
-    const response = await post(
+    const response = await axios.post(
       `${process.env.BASE_URL}/mpesa/stkpushquery/v1/query`,
       requestBody,
       {
@@ -193,7 +192,8 @@ const stkQuery = async (req, res) => {
   }
 };
 
-// Export the controller functions
+// Export the controller functions as default
+// eslint-disable-next-line import/no-anonymous-default-export
 export default {
   sendStkPush,
   handleCallback,

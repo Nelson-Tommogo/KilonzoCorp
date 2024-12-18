@@ -1,4 +1,5 @@
-const axios = require("axios");
+// middleware/darajaAuthMiddleware.js (ES Modules version)
+import axios from 'axios';
 
 const darajaAuthMiddleware = async (req, res, next) => {
   try {
@@ -51,4 +52,4 @@ const darajaAuthMiddleware = async (req, res, next) => {
   }
 };
 
-module.exports = darajaAuthMiddleware;
+export default darajaAuthMiddleware; 

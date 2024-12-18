@@ -1,15 +1,14 @@
-// models/User.js
-
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); // your DB connection
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js';  // Import the sequelize instance
 
 const User = sequelize.define('User', {
   username: {
-    type: DataTypes.STRING(25),
+    type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
   email: {
-    type: DataTypes.STRING(50),
+    type: DataTypes.STRING,
     allowNull: false,
     unique: true,
   },
@@ -19,12 +18,10 @@ const User = sequelize.define('User', {
   },
   isVerified: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false,
+    defaultValue: false,  // Default is false (unverified)
   },
-  createdAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
+}, {
+  timestamps: true,  // Automatically adds 'createdAt' and 'updatedAt' columns
 });
 
-module.exports = User;
+export default User;
