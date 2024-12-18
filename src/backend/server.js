@@ -1,7 +1,7 @@
 import express, { json } from 'express';
 import { config } from 'dotenv';
 import authRoutes from './route/authRoutes.js';
-import paymentRoutes from './route/paymentRoutes.js';  // Import the payment routes
+import paymentRoutes from './route/payment.js'; 
 import { query } from './config/db.js'; 
 
 // Load environment variables

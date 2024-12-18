@@ -1,164 +1,201 @@
-import axios from "axios"; // Correct import for axios
-import { createPayment, getPaymentByTransactionId } from "../models/Payment.js"; // Correct imports
-import { pool } from "../config/db.js"; // Import the pool from db.js
-require("dotenv").config();
+// controllers/paymentController.js
+import { post } from 'axios';
+import moment from 'moment';
+import Transaction from '../models/Transaction.js';  // Ensure you have this model
 
-// Generate timestamp
-const generateTimestamp = () => {
-  return new Date().toISOString().replace(/-|T|:|\.|Z/g, "");
-};
-
-// Send STK Push
+// 1. Send STK Push (PayBill)
 const sendStkPush = async (req, res) => {
-  const { phoneNumber, amount } = req.body;
-
   try {
-    const timestamp = generateTimestamp();
-    const password = Buffer.from(
-      `${process.env.SHORT_CODE}${process.env.PASS_KEY}${timestamp}`
-    ).toString("base64");
+    const { phoneNumber, amount } = req.body;
 
-    const payload = {
-      BusinessShortCode: process.env.SHORT_CODE,
+    // Validate the required fields
+    if (!phoneNumber || !amount) {
+      return res.status(400).json({
+        error: 'Phone number and amount are required fields.',
+      });
+    }
+
+    // Generate timestamp in format YYYYMMDDHHMMSS
+    const timestamp = moment().format('YYYYMMDDHHmmss');
+
+    // Generate password (Base64-encoded Shortcode + PassKey + Timestamp)
+    const businessShortCode = process.env.M_PESA_SHORT_CODE;
+    const passKey = process.env.M_PESA_PASSKEY;
+    const password = Buffer.from(
+      `${businessShortCode}${passKey}${timestamp}`
+    ).toString('base64');
+
+    // Prepare the request body for PayBill
+    const requestBody = {
+      BusinessShortCode: businessShortCode,
       Password: password,
       Timestamp: timestamp,
-      TransactionType: "CustomerPayBillOnline",
+      TransactionType: 'CustomerPayBillOnline', // This defines it's a PayBill transaction
       Amount: amount,
-      PartyA: phoneNumber,
-      PartyB: process.env.SHORT_CODE,
-      PhoneNumber: phoneNumber,
-      CallBackURL: `${process.env.BASE_URL}/api/callback`,
-      AccountReference: "MERNApp",
-      TransactionDesc: "Payment via STK Push",
+      PartyA: phoneNumber,  // The phone number sending the payment
+      PartyB: businessShortCode,  // The business shortcode
+      PhoneNumber: phoneNumber,  // The phone number
+      CallBackURL: process.env.CALLBACK_URL,  // The URL where Safaricom will send a callback after processing the payment
+      AccountReference: 'your_account_reference',  // You can customize this reference
+      TransactionDesc: 'Payment for goods/services',  // A description for the transaction
     };
 
-    const response = await axios.post(
-      "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${req.accessToken}`,
-        },
-      }
+    // Set authorization headers for the API request
+    const headers = {
+      Authorization: `Bearer ${req.darajaToken}`, // Include the Daraja Token
+    };
+
+    // Send the STK push request to Safaricom PayBill API
+    const response = await post(
+      `${process.env.BASE_URL}/mpesa/stkpush/v1/processrequest`,
+      requestBody,
+      { headers }
     );
 
-    // Save payment to DB
-    const payment = await createPayment({
-      phoneNumber,
-      amount,
-      checkoutRequestId: response.data.CheckoutRequestID,
-      status: "Pending",
-    });
-
-    res.status(200).json({
-      message: "STK Push initiated successfully",
-      paymentId: payment.insertId, // Use the correct field for the inserted payment ID
-    });
+    // Handle the response from Safaricom
+    if (response.data.ResponseCode === '0') {
+      return res.status(200).json({
+        message: 'STK push request sent successfully.',
+        checkoutRequestID: response.data.CheckoutRequestID,
+        merchantRequestID: response.data.MerchantRequestID,
+        responseDescription: response.data.ResponseDescription,
+      });
+    } else {
+      return res.status(400).json({
+        error: 'Failed to initiate STK push.',
+        responseDescription: response.data.ResponseDescription,
+      });
+    }
   } catch (error) {
-    res.status(500).json({ message: "STK Push failed", error: error.message });
+    console.error('Error initiating STK push:', error.message);
+
+    // Handle network or API errors
+    if (error.response) {
+      return res.status(error.response.status).json({
+        error: error.response.data,
+      });
+    }
+
+    return res.status(500).json({
+      error: 'An error occurred while initiating STK push.',
+    });
   }
 };
 
-// Query Transaction Status
-const queryTransactionStatus = async (req, res) => {
-  const { checkoutRequestId } = req.body;
-
+// 2. Handle Callback from M-Pesa (to confirm payment)
+const handleCallback = async (req, res) => {
   try {
-    const timestamp = generateTimestamp();
-    const password = Buffer.from(
-      `${process.env.SHORT_CODE}${process.env.PASS_KEY}${timestamp}`
-    ).toString("base64");
+    const callbackData = req.body;
 
-    const payload = {
-      BusinessShortCode: process.env.SHORT_CODE,
+    // Check the result code to determine success or failure
+    const result_code = callbackData.Body.stkCallback.ResultCode;
+    if (result_code !== 0) {
+      const error_message = callbackData.Body.stkCallback.ResultDesc;
+      return res.status(400).json({
+        ResultCode: result_code,
+        ResultDesc: error_message,
+      });
+    }
+
+    // Extract callback metadata (Amount, MpesaReceiptNumber, PhoneNumber)
+    const body = callbackData.Body.stkCallback.CallbackMetadata;
+
+    const amount = body.Item.find((obj) => obj.Name === 'Amount').Value;
+    const mpesaCode = body.Item.find(
+      (obj) => obj.Name === 'MpesaReceiptNumber'
+    ).Value;
+    const phone = body.Item.find((obj) => obj.Name === 'PhoneNumber').Value;
+
+    // Save the transaction details in the database
+    const newTransaction = new Transaction({
+      amount,
+      mpesaCode,
+      phoneNumber: phone,
+      status: 'Completed',  // You can mark the status based on your flow
+    });
+
+    // Save the transaction
+    await newTransaction.save();
+
+    // Return success response
+    return res.status(200).json({
+      message: 'Callback processed successfully and transaction saved.',
+      transaction: newTransaction,
+    });
+  } catch (error) {
+    console.error('Error processing callback:', error.message);
+    return res.status(500).json({
+      error: 'An error occurred while processing the callback.',
+    });
+  }
+};
+
+// 3. STK Query (Check payment status)
+const stkQuery = async (req, res) => {
+  try {
+    // Get the CheckoutRequestID from the request body
+    const { checkoutRequestId } = req.body;
+    if (!checkoutRequestId) {
+      return res.status(400).json({ error: 'CheckoutRequestID is required' });
+    }
+
+    // Generate the Timestamp (YYYYMMDDHHMMSS format)
+    const timestamp = new Date()
+      .toISOString()
+      .replace(/[-T:\.Z]/g, '')
+      .slice(0, 14);
+
+    // Generate the STK Password
+    const password = Buffer.from(
+      `${process.env.M_PESA_SHORT_CODE}${process.env.M_PESA_PASSKEY}${timestamp}`
+    ).toString('base64');
+
+    // Prepare the Request Body
+    const requestBody = {
+      BusinessShortCode: process.env.M_PESA_SHORT_CODE,
       Password: password,
       Timestamp: timestamp,
       CheckoutRequestID: checkoutRequestId,
     };
 
-    const response = await axios.post(
-      "https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query",
-      payload,
+    // Send the STK Query request to Safaricom API
+    const response = await post(
+      `${process.env.BASE_URL}/mpesa/stkpushquery/v1/query`,
+      requestBody,
       {
         headers: {
-          Authorization: `Bearer ${req.accessToken}`,
+          Authorization: `Bearer ${req.darajaToken}`,
         },
       }
     );
 
-    // Update payment status in DB
-    const payment = await getPaymentByTransactionId(checkoutRequestId);
-
-    if (!payment || payment.length === 0) {
-      return res.status(404).json({ message: "Payment not found" });
+    // Check the response from Safaricom API
+    const { ResultCode, ResultDesc } = response.data;
+    if (ResultCode === 0) {
+      return res.status(200).json({
+        message: 'Query successful',
+        status: 'Success',
+        result: response.data,
+      });
+    } else {
+      return res.status(400).json({
+        message: 'Query failed',
+        status: 'Failure',
+        resultCode: ResultCode,
+        resultDesc: ResultDesc,
+      });
     }
-
-    // Update status based on query result
-    payment.status = response.data.ResultCode === "0" ? "Completed" : "Failed";
-    await updatePaymentStatus(payment);
-
-    res.status(200).json({ message: "Transaction status retrieved", payment });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Failed to query status", error: error.message });
+    console.error('Error querying STK payment:', error.message);
+    return res.status(500).json({
+      error: 'An error occurred while querying the STK payment status.',
+    });
   }
 };
 
-// Handle Callback
-const handleCallback = async (req, res) => {
-  const { Body } = req.body;
-  const callbackData = Body.stkCallback;
-
-  if (!callbackData)
-    return res.status(400).json({ message: "Invalid callback data" });
-
-  const { CheckoutRequestID, ResultCode, CallbackMetadata } = callbackData;
-
-  try {
-    const updates = {
-      status: ResultCode === 0 ? "Completed" : "Failed",
-      transactionId: CallbackMetadata?.Item?.find(
-        (item) => item.Name === "MpesaReceiptNumber"
-      )?.Value,
-      receiptNumber: CallbackMetadata?.Item?.find(
-        (item) => item.Name === "ReceiptNumber"
-      )?.Value,
-    };
-
-    const payment = await getPaymentByTransactionId(CheckoutRequestID);
-    if (!payment) {
-      return res.status(404).json({ message: "Payment not found" });
-    }
-
-    // Update the payment status and other fields
-    await updatePaymentStatus(payment, updates);
-
-    res.status(200).json({ message: "Callback handled successfully" });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Failed to handle callback", error: error.message });
-  }
+// Export the controller functions
+export default {
+  sendStkPush,
+  handleCallback,
+  stkQuery,
 };
-
-// Helper function to update payment status
-const updatePaymentStatus = async (payment, updates) => {
-  const { checkoutRequestId, status, transactionId, receiptNumber } = updates;
-  const query = `
-    UPDATE payments
-    SET status = ?, transactionId = ?, receiptNumber = ?
-    WHERE checkoutRequestId = ?
-  `;
-  const params = [status, transactionId, receiptNumber, checkoutRequestId];
-
-  try {
-    // Execute the query with the pool
-    await pool.execute(query, params);
-  } catch (error) {
-    console.error("Error updating payment status:", error.message);
-    throw error; // Propagate the error
-  }
-};
-
-export default { sendStkPush, queryTransactionStatus, handleCallback };
