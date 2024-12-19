@@ -1,8 +1,8 @@
-import axios from 'axios'; // Correctly import the entire axios instance
-import moment from 'moment';
-import Transaction from '../models/Transaction.js';
+import axios from "axios";
+import moment from "moment";
+import Transaction from "../models/Transaction.js";
 
-// 1. Send STK Push (PayBill)
+// 1. Send STK Push
 const sendStkPush = async (req, res) => {
   try {
     const { phoneNumber, amount } = req.body;
@@ -10,41 +10,41 @@ const sendStkPush = async (req, res) => {
     // Validate the required fields
     if (!phoneNumber || !amount) {
       return res.status(400).json({
-        error: 'Phone number and amount are required fields.',
+        error: "Phone number and amount are required fields.",
       });
     }
 
     // Generate timestamp in format YYYYMMDDHHMMSS
-    const timestamp = moment().format('YYYYMMDDHHmmss');
+    const timestamp = moment().format("YYYYMMDDHHmmss");
 
     // Generate password (Base64-encoded Shortcode + PassKey + Timestamp)
-    const businessShortCode = process.env.M_PESA_SHORT_CODE;
-    const passKey = process.env.M_PESA_PASSKEY;
+    const businessShortCode = process.env.SHORTCODE;
+    const passKey = process.env.PASSKEY;
     const password = Buffer.from(
       `${businessShortCode}${passKey}${timestamp}`
-    ).toString('base64');
+    ).toString("base64");
 
-    // Prepare the request body for PayBill
+    // Prepare the request body
     const requestBody = {
       BusinessShortCode: businessShortCode,
       Password: password,
       Timestamp: timestamp,
-      TransactionType: 'CustomerPayBillOnline', // This defines it's a PayBill transaction
+      TransactionType: "CustomerPayBillOnline",
       Amount: amount,
-      PartyA: phoneNumber,  // The phone number sending the payment
-      PartyB: businessShortCode,  // The business shortcode
-      PhoneNumber: phoneNumber,  // The phone number
-      CallBackURL: process.env.CALLBACK_URL,  // The URL where Safaricom will send a callback after processing the payment
-      AccountReference: 'your_account_reference',  // You can customize this reference
-      TransactionDesc: 'Payment for goods/services',  // A description for the transaction
+      PartyA: phoneNumber,
+      PartyB: businessShortCode,
+      PhoneNumber: phoneNumber,
+      CallBackURL: process.env.CALLBACK_URL,
+      AccountReference: "account",
+      TransactionDesc: "test",
     };
 
-    // Set authorization headers for the API request
+    // Set authorization headers
     const headers = {
-      Authorization: `Bearer ${req.darajaToken}`, // Include the Daraja Token
+      Authorization: `Bearer ${req.darajaToken}`,
     };
 
-    // Send the STK push request to Safaricom PayBill API
+    // Send the STK push request to Safaricom
     const response = await axios.post(
       `${process.env.BASE_URL}/mpesa/stkpush/v1/processrequest`,
       requestBody,
@@ -52,21 +52,21 @@ const sendStkPush = async (req, res) => {
     );
 
     // Handle the response from Safaricom
-    if (response.data.ResponseCode === '0') {
+    if (response.data.ResponseCode === "0") {
       return res.status(200).json({
-        message: 'STK push request sent successfully.',
+        message: "STK push request sent successfully.",
         checkoutRequestID: response.data.CheckoutRequestID,
         merchantRequestID: response.data.MerchantRequestID,
         responseDescription: response.data.ResponseDescription,
       });
     } else {
       return res.status(400).json({
-        error: 'Failed to initiate STK push.',
+        error: "Failed to initiate STK push.",
         responseDescription: response.data.ResponseDescription,
       });
     }
   } catch (error) {
-    console.error('Error initiating STK push:', error.message);
+    console.error("Error initiating STK push:", error.message);
 
     // Handle network or API errors
     if (error.response) {
@@ -76,12 +76,12 @@ const sendStkPush = async (req, res) => {
     }
 
     return res.status(500).json({
-      error: 'An error occurred while initiating STK push.',
+      error: "An error occurred while initiating STK push.",
     });
   }
 };
 
-// 2. Handle Callback from M-Pesa (to confirm payment)
+// 2. Handle Callback from M-Pesa
 const handleCallback = async (req, res) => {
   try {
     const callbackData = req.body;
@@ -96,21 +96,21 @@ const handleCallback = async (req, res) => {
       });
     }
 
-    // Extract callback metadata (Amount, MpesaReceiptNumber, PhoneNumber)
+    // Extract callback metadata (e.g., Amount, MpesaReceiptNumber, PhoneNumber)
     const body = callbackData.Body.stkCallback.CallbackMetadata;
 
-    const amount = body.Item.find((obj) => obj.Name === 'Amount').Value;
+    const amount = body.Item.find((obj) => obj.Name === "Amount").Value;
     const mpesaCode = body.Item.find(
-      (obj) => obj.Name === 'MpesaReceiptNumber'
+      (obj) => obj.Name === "MpesaReceiptNumber"
     ).Value;
-    const phone = body.Item.find((obj) => obj.Name === 'PhoneNumber').Value;
+    const phone = body.Item.find((obj) => obj.Name === "PhoneNumber").Value;
 
-    // Save the transaction details in the database
+    // Save the transaction data to the database
     const newTransaction = new Transaction({
       amount,
       mpesaCode,
       phoneNumber: phone,
-      status: 'Completed',  // You can mark the status based on your flow
+      status: "Completed", // Mark status as completed
     });
 
     // Save the transaction
@@ -118,82 +118,116 @@ const handleCallback = async (req, res) => {
 
     // Return success response
     return res.status(200).json({
-      message: 'Callback processed successfully and transaction saved.',
+      message: "Callback processed successfully and transaction saved.",
       transaction: newTransaction,
     });
   } catch (error) {
-    console.error('Error processing callback:', error.message);
+    console.error("Error processing callback:", error.message);
     return res.status(500).json({
-      error: 'An error occurred while processing the callback.',
+      error: "An error occurred while processing the callback.",
     });
   }
 };
 
-// 3. STK Query (Check payment status)
+// 3. STK Query
 const stkQuery = async (req, res) => {
   try {
-    // Get the CheckoutRequestID from the request body
-    const { checkoutRequestId } = req.body;
-    if (!checkoutRequestId) {
-      return res.status(400).json({ error: 'CheckoutRequestID is required' });
+    const { checkoutRequestID } = req.body;
+    if (!checkoutRequestID) {
+      return res.status(400).json({ error: "CheckoutRequestID is required" });
     }
 
-    // Generate the Timestamp (YYYYMMDDHHMMSS format)
-    const timestamp = new Date()
-      .toISOString()
-      .replace(/[-T:\.Z]/g, '')
-      .slice(0, 14);
+    // Generate timestamp in format YYYYMMDDHHMMSS
+    const timestamp = moment().format("YYYYMMDDHHmmss");
 
-    // Generate the STK Password
     const password = Buffer.from(
-      `${process.env.M_PESA_SHORT_CODE}${process.env.M_PESA_PASSKEY}${timestamp}`
-    ).toString('base64');
+      `${process.env.SHORTCODE}${process.env.PASSKEY}${timestamp}`
+    ).toString("base64");
 
-    // Prepare the Request Body
     const requestBody = {
-      BusinessShortCode: process.env.M_PESA_SHORT_CODE,
+      BusinessShortCode: process.env.SHORTCODE,
       Password: password,
       Timestamp: timestamp,
-      CheckoutRequestID: checkoutRequestId,
+      CheckoutRequestID: checkoutRequestID,
     };
 
-    // Send the STK Query request to Safaricom API
-    const response = await axios.post(
-      `${process.env.BASE_URL}/mpesa/stkpushquery/v1/query`,
-      requestBody,
-      {
-        headers: {
-          Authorization: `Bearer ${req.darajaToken}`,
-        },
-      }
-    );
+    const pollForStatus = async (
+      attempt = 0,
+      maxAttempts = 12,
+      delay = 5000
+    ) => {
+      try {
+        const response = await axios.post(
+          `${process.env.BASE_URL}/mpesa/stkpushquery/v1/query`,
+          requestBody,
+          {
+            headers: {
+              Authorization: `Bearer ${req.darajaToken}`,
+            },
+          }
+        );
 
-    // Check the response from Safaricom API
-    const { ResultCode, ResultDesc } = response.data;
-    if (ResultCode === 0) {
-      return res.status(200).json({
-        message: 'Query successful',
-        status: 'Success',
-        result: response.data,
-      });
-    } else {
-      return res.status(400).json({
-        message: 'Query failed',
-        status: 'Failure',
-        resultCode: ResultCode,
-        resultDesc: ResultDesc,
-      });
-    }
+        const { ResultCode, ResultDesc } = response.data;
+
+        if (ResultCode !== undefined) {
+          if (ResultCode === "0") {
+            // Success response
+            return {
+              status: "Success",
+              message: "Payment successful",
+              data: response.data,
+            };
+          } else {
+            // Failure response (ResultCode !== 0)
+            return {
+              status: "Failure",
+              message: ResultDesc,
+              data: response.data,
+            };
+          }
+        }
+
+        // Still processing, retry if attempts are left
+        if (attempt < maxAttempts) {
+          console.log(
+            `Transaction still processing. Retrying... Attempt ${
+              attempt + 1
+            }/${maxAttempts}`
+          );
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          return pollForStatus(attempt + 1);
+        }
+
+        // If retries exhausted
+        return {
+          status: "Timeout",
+          message: "You took too long to pay. Please try again.",
+        };
+      } catch (error) {
+        if (attempt < maxAttempts) {
+          console.log("Payment is still processing");
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          return pollForStatus(attempt + 1);
+        }
+
+        // If retries are exhausted, throw final error
+        throw error;
+      }
+    };
+
+    // Wait for the polling to finish and respond accordingly
+    const result = await pollForStatus();
+
+    return res.status(result.status === "Timeout" ? 408 : 200).json(result);
   } catch (error) {
-    console.error('Error querying STK payment:', error.message);
+    console.error("Error querying STK payment:", error.message);
     return res.status(500).json({
-      error: 'An error occurred while querying the STK payment status.',
+      error: "An error occurred while querying the STK payment status.",
+      details: error.response?.data || error.message,
     });
   }
 };
 
-// Export the controller functions as default
-// eslint-disable-next-line import/no-anonymous-default-export
 export default {
   sendStkPush,
   handleCallback,
