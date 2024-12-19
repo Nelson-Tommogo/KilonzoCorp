@@ -41,7 +41,7 @@ const ContactUsForm = () => {
                 <div className="row">
                     <div className="col-md-4" data-aos='fade-right'>
                         <p className={styles.head}>Address</p>
-                        <p className={styles.content}>Kathaayoni Estate, Machakos-Kitui Road, Machakos Kenya</p>
+                        <p className={styles.content}>Kilonzocorp building, near Kathaayoni Junior School in Kathaayoni Estate, off Machakos-Kitui Road, in Machakos Town.</p>
                     </div>
 
                     <div className="col-md-4" data-aos='fade-up' data-aos-offset='100'>
