@@ -1,38 +1,38 @@
-import { Sequelize } from 'sequelize';
+import mysql from 'mysql2/promise';
 import { config } from 'dotenv';
 
-// Load environment variables from the .env file
 config();
 
-const sequelize = new Sequelize(
-  process.env.DB_NAME || 'your_database',  // Database name
-  process.env.DB_USER || 'root',           // Username
-  process.env.DB_PASSWORD || '',           // Password
-  {
-    host: process.env.DB_HOST || 'localhost',  // Host
-    dialect: 'mysql',
-    logging: process.env.NODE_ENV === 'development',  // Enable query logging in development
-    pool: {
-      max: 5, // Maximum number of connections
-      min: 0, // Minimum number of connections
-      acquire: 30000, // Maximum time (ms) to try getting a connection
-      idle: 10000, // Maximum time (ms) a connection can be idle before release
-    },
-  }
-);
+// Warn if required environment variables are missing
+if (!process.env.DB_NAME || !process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_HOST) {
+  console.warn('Missing one or more required database environment variables.');
+}
 
-// Test the connection
+// Database connection pool
+const pool = mysql.createPool({
+  host: process.env.DB_HOST || 'kilonzicorp.com', // Database host
+  user: process.env.DB_USER || 'kilonzoc_kilonzocusers', // Database user
+  password: process.env.DB_PASSWORD || 'Bu9{u}gW.5vC', // Database password
+  database: process.env.DB_NAME || 'kilonzoc_users', // Database name
+  waitForConnections: true,
+  connectionLimit: 5, // Limit the number of connections in the pool
+  queueLimit: 0,      // Limit the number of queries waiting for a connection
+});
+
+// Test the database connection
 const testConnection = async () => {
   try {
-    await sequelize.authenticate();
+    const connection = await pool.getConnection();
     console.log('Database connection has been established successfully.');
+    connection.release();
   } catch (error) {
     console.error('Unable to connect to the database:', error.message);
+    console.error('Stack Trace:', error.stack);
     process.exit(1); // Exit if the connection fails
   }
 };
 
-// Call the testConnection function
+// Call the testConnection function to verify
 testConnection();
 
-export default sequelize;
+export default pool;

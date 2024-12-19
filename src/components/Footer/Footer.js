@@ -57,12 +57,8 @@ const Footer = () => {
                         {/* Column 1 */}
                         <div className={`col-lg-3 col-sm-6 ${styles.contain}`}>
                             <p className={styles.logo}>KilonzoCorp</p>
-                            <p className={styles.text}>
-                                KilonzoCorp Holdings LTD specializes in advanced annotation services for machine learning and AI projects.
-                            </p>
-                            <p className={styles.text}>
-                                Our tailored solutions ensure accuracy and efficiency, empowering businesses to build cutting-edge technologies.
-                            </p>
+                            <p className={styles.text}> KilonzoCorp Holdings Ltd is located in the Kilonzocorp building, near Kathaayoni Junior School in Kathaayoni Estate, off Machakos-Kitui Road, in Machakos Town. </p>
+                            
                         </div>
 
                         {/* Column 2 */}
