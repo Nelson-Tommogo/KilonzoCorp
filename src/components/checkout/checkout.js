@@ -47,6 +47,22 @@ const Checkout = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
+    if (name === "phoneNumber") {
+      // Regular expression for Safaricom numbers
+      const safaricomNumberRegex = /^\(\+2547\d{7}|\+2541\d{7}|07\d{8}\)$/;
+
+      if (!safaricomNumberRegex.test(value)) {
+        setErrorMessage("Invalid Safaricom number. Use (+2547...), (+2541...), or 07...");
+      } else {
+        setErrorMessage(""); // Clear error message if the number is valid
+      }
+    }
+
+    setPaymentDetails((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
     if (name === "plan") {
       let selectedAmountUSD = "";
       switch (value) {
@@ -67,11 +83,6 @@ const Checkout = () => {
         plan: value,
         amountUSD: selectedAmountUSD,
         amountKES: selectedAmountUSD ? convertToKES(selectedAmountUSD) : "",
-      }));
-    } else {
-      setPaymentDetails((prev) => ({
-        ...prev,
-        [name]: value,
       }));
     }
   };
@@ -272,7 +283,7 @@ const Checkout = () => {
             </div>
             {errorMessage && <p className="error-message">{errorMessage}</p>}
             <button className="proceed-button" onClick={handleSubmit}>
-              Proceed
+              Pay Now
             </button>
             <button className="close-button" onClick={handleCloseForm}>
               Close

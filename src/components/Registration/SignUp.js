@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import styles from './SignUp.module.css';
 import { FaGoogle, FaEye, FaEyeSlash } from 'react-icons/fa'; 
 import Modal from 'react-modal'; 
-import axios from 'axios'; // Import axios
+import { signUpWithEmailAndPassword, sendVerificationEmail } from '../../firebase';
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -13,14 +13,18 @@ const SignUp = () => {
     password: '',
     confirmPassword: ''
   });
-
+  
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); 
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false); 
   const [errorMessage, setErrorMessage] = useState(''); 
+  const [loading, setLoading] = useState(false);  // State for loading
   const navigate = useNavigate();
+
+  // Email validation regex
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 
   const handleChange = (e) => {
     setFormData({
@@ -29,28 +33,39 @@ const SignUp = () => {
     });
   };
 
+  // Check if the form is valid before enabling submit button
+  const isFormValid = () => {
+    return (
+      formData.email &&
+      emailRegex.test(formData.email) &&
+      formData.password === formData.confirmPassword &&
+      formData.password.length >= 6  // You can add more password validation
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+
+    if (!isFormValid()) {
+      setError("Please fill out all fields correctly.");
       return;
     }
 
-    // Send data to backend API
-    try {
-      const response = await axios.post('http://localhost:5000/signup', {
-        email: formData.email,
-        name: formData.name,
-        contact: formData.contact,
-        password: formData.password,
-      });
+    setLoading(true); // Start loading indicator
 
-      if (response.status === 201) {
-        setIsSuccessModalOpen(true); // Show success modal
-      }
+    try {
+      // Create user using Firebase Authentication
+      const user = await signUpWithEmailAndPassword(formData.email, formData.password);
+
+      // Send email verification after user creation
+      await sendVerificationEmail(user);
+
+      setIsSuccessModalOpen(true); // Show success modal
     } catch (error) {
-      setErrorMessage(error.response ? error.response.data.message : 'Something went wrong');
+      setErrorMessage(error.message);
       setIsErrorModalOpen(true); // Show error modal
+    } finally {
+      setLoading(false); // Stop loading indicator
     }
   };
 
@@ -139,7 +154,13 @@ const SignUp = () => {
           </button>
         </div>
 
-        <button type="submit" className={styles.signupButton}>Sign Up</button>
+        <button
+          type="submit"
+          className={styles.signupButton}
+          disabled={!isFormValid() || loading}  // Disable button if form is invalid or loading
+        >
+          {loading ? "Signing Up..." : "Sign Up"}
+        </button>
       </form>
 
       <div className={styles.orDivider}>OR</div>

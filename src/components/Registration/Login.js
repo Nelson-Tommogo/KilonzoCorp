@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom'; 
-import axios from 'axios'; // Import axios
+import { signInWithEmailAndPassword, auth } from '../../firebase';
 import styles from './Login.module.css'; 
 import { FaGoogle, FaEye, FaEyeSlash } from 'react-icons/fa'; 
 
@@ -14,7 +14,7 @@ const Login = () => {
   const [error, setError] = useState(''); 
   const [showSuccessDialog, setShowSuccessDialog] = useState(false); 
   const [showErrorDialog, setShowErrorDialog] = useState(false); 
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -26,28 +26,20 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Make a POST request to your backend API
-      const response = await axios.post('https://your-backend-api.com/api/v1/auth/login', {
-        email: formData.email,
-        password: formData.password,
-      });
+      // Firebase sign-in with email and password
+      const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      
+      const user = userCredential.user; // Get the authenticated user
 
-      // Check the response and handle success
-      if (response.data.success) {
-        console.log("User logged in, Enjoy Mebiut", response.data);
-        
-        // Store token or user info in local storage or context (for session management)
-        localStorage.setItem('authToken', response.data.token);
-        
-        // Show success dialog
-        setShowSuccessDialog(true);
-      } else {
-        setError(response.data.message); // Show the error message from backend
-        setShowErrorDialog(true); // Show error dialog on failure
-      }
+      console.log("User logged in successfully:", user);
+      
+      // Optionally, store the token or user info for session management
+      localStorage.setItem('authToken', await user.getIdToken());
+
+      setShowSuccessDialog(true); // Show success dialog
     } catch (error) {
-      console.error('Login failed:', error);
-      setError('An error occurred while logging in. Please try again later.');
+      console.error('Login failed:', error.message);
+      setError(error.message); // Set the error message from Firebase
       setShowErrorDialog(true); // Show error dialog on failure
     }
   };
