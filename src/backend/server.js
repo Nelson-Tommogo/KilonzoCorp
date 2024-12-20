@@ -7,7 +7,7 @@ import bodyParser from 'body-parser';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
 // Middleware
 app.use(express.json());
@@ -21,8 +21,8 @@ const getToken = async (req, res, next) => {
   try {
     // Log current time and expiry time of cached token
     if (cachedToken) {
-      console.log('Current time:', new Date().toLocaleString());
-      console.log('Cached token expiry time:', new Date(cachedToken.expiryTime).toLocaleString());
+      console.log('Current time:', Date.now());
+      console.log('Cached token expiry time:', cachedToken.expiryTime);
     }
 
     // Use cached token if valid
@@ -116,11 +116,12 @@ app.post('/stk', getToken, async (req, res) => {
       PartyA: phoneNumber,
       PartyB: businessShortCode,
       PhoneNumber: phoneNumber,
-      CallBackURL: 'https//mydomain.com',
+      CallBackURL: process.env.CALLBACK_URL,
       AccountReference: phoneNumber,
       TransactionDesc: 'Payment for goods/services',
     };
 
+    // Log the request body
     console.log('Sending STK Push request:', requestBody);
 
     const response = await axios.post(
@@ -129,6 +130,7 @@ app.post('/stk', getToken, async (req, res) => {
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
+    // Log the response from Safaricom API
     console.log('STK Push Response:', response.data);
 
     if (response.data.ResponseCode === '0') {
@@ -160,40 +162,152 @@ app.post('/stk', getToken, async (req, res) => {
   }
 });
 
-app.post('/callback', (req, res) => {
+
+
+
+const handleCallback = async (req, res) => {
   try {
     const callbackData = req.body;
-    console.log('Received Callback Data:', callbackData);
+    console.log('Callback Data Received:', callbackData);
 
-    const result_code = callbackData.Body?.stkCallback?.ResultCode;
-
+    // Check the result code to determine success or failure
+    const result_code = callbackData.Body.stkCallback.ResultCode;
     if (result_code !== 0) {
-      const error_message = callbackData.Body?.stkCallback?.ResultDesc;
+      const error_message = callbackData.Body.stkCallback.ResultDesc;
       return res.status(400).json({
         ResultCode: result_code,
         ResultDesc: error_message,
       });
     }
 
-    const items = callbackData.Body?.stkCallback?.CallbackMetadata?.Item || [];
-    const amount = items.find((obj) => obj.Name === 'Amount')?.Value || null;
-    const mpesaCode = items.find((obj) => obj.Name === 'MpesaReceiptNumber')?.Value || null;
-    const phone = items.find((obj) => obj.Name === 'PhoneNumber')?.Value || null;
+    // Extract callback metadata (e.g., Amount, MpesaReceiptNumber, PhoneNumber)
+    const body = callbackData.Body.stkCallback.CallbackMetadata;
+    const amount = body.Item.find((obj) => obj.Name === "Amount").Value;
+    const mpesaCode = body.Item.find((obj) => obj.Name === "MpesaReceiptNumber").Value;
+    const phone = body.Item.find((obj) => obj.Name === "PhoneNumber").Value;
 
-    console.log('Processed Callback Data:', { amount, mpesaCode, phone });
+    // Log the transaction data (no DB saving)
+    console.log('Transaction Data:', { amount, mpesaCode, phone });
 
+    // Return success response
     return res.status(200).json({
-      message: 'Callback processed successfully.',
+      message: "Callback processed successfully.",
       transaction: { amount, mpesaCode, phone },
     });
   } catch (error) {
-    console.error('Error processing callback:', error.message);
+    console.error("Error processing callback:", error.message);
     return res.status(500).json({
-      error: 'An error occurred while processing the callback.',
+      error: "An error occurred while processing the callback.",
     });
   }
-});
+};
 
+// Define the /callback endpoint
+app.post('/callback', handleCallback);
+
+// 3. STK Query (Check payment status)
+const stkQuery = async (req, res) => {
+  try {
+    const { checkoutRequestID } = req.body;
+    if (!checkoutRequestID) {
+      return res.status(400).json({ error: "CheckoutRequestID is required" });
+    }
+
+    // Generate timestamp in format YYYYMMDDHHMMSS
+    const timestamp = moment().format("YYYYMMDDHHmmss");
+
+    const password = Buffer.from(
+      `${process.env.SHORTCODE}${process.env.PASSKEY}${timestamp}`
+    ).toString("base64");
+
+    const requestBody = {
+      BusinessShortCode: process.env.SHORTCODE,
+      Password: password,
+      Timestamp: timestamp,
+      CheckoutRequestID: checkoutRequestID,
+    };
+
+    const pollForStatus = async (
+      attempt = 0,
+      maxAttempts = 12,
+      delay = 5000
+    ) => {
+      try {
+        const response = await axios.post(
+          `${process.env.BASE_URL}/mpesa/stkpushquery/v1/query`,
+          requestBody,
+          {
+            headers: {
+              Authorization: `Bearer ${req.darajaToken}`,
+            },
+          }
+        );
+
+        const { ResultCode, ResultDesc } = response.data;
+
+        if (ResultCode !== undefined) {
+          if (ResultCode === "0") {
+            // Success response
+            return {
+              status: "Success",
+              message: "Payment successful",
+              data: response.data,
+            };
+          } else {
+            // Failure response (ResultCode !== 0)
+            return {
+              status: "Failure",
+              message: ResultDesc,
+              data: response.data,
+            };
+          }
+        }
+
+        // Still processing, retry if attempts are left
+        if (attempt < maxAttempts) {
+          console.log(
+            `Transaction still processing. Retrying... Attempt ${
+              attempt + 1
+            }/${maxAttempts}`
+          );
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          return pollForStatus(attempt + 1);
+        }
+
+        // If retries exhausted
+        return {
+          status: "Timeout",
+          message: "You took too long to pay. Please try again.",
+        };
+      } catch (error) {
+        if (attempt < maxAttempts) {
+          console.log("Payment is still processing");
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          return pollForStatus(attempt + 1);
+        }
+
+        // If retries are exhausted, throw final error
+        throw error;
+      }
+    };
+
+    // Wait for the polling to finish and respond accordingly
+    const result = await pollForStatus();
+
+    return res.status(result.status === "Timeout" ? 408 : 200).json(result);
+  } catch (error) {
+    console.error("Error querying STK payment:", error.message);
+    return res.status(500).json({
+      error: "An error occurred while querying the STK payment status.",
+      details: error.response?.data || error.message,
+    });
+  }
+};
+app.post('/stkquery', stkQuery);
+
+
+
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
