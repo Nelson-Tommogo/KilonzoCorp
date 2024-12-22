@@ -3,7 +3,222 @@ import safImage from "./saf.png"; // M-Pesa logo/image
 import paylineImage from "./payline.png"; // Payline logo/image
 import mpesaImage from "./mpesa.webp"; // M-Pesa logo for popup
 import paylineLogo from "./pay.png"; // Payline logo for popup
-import "./checkout.css"; // Importing CSS for styling
+import "./checkout.css"; 
+import axios from 'axios';
+import moment from 'moment';
+import { Buffer } from 'buffer';
+
+
+let cachedToken = null;
+
+
+
+const getToken = async (req, res, next) => {
+  try {
+      if (cachedToken && Date.now() < cachedToken.expiryTime) {
+          req.token = cachedToken.access_token;
+          return next();
+      }
+
+      const consumerKey = process.env.M_PESA_CONSUMER_KEY;
+      const consumerSecret = process.env.M_PESA_CONSUMER_SECRET;
+
+      // Using btoa instead of Buffer in the browser environment
+      const auth = btoa(`${consumerKey}:${consumerSecret}`);
+
+      const response = await axios.get(
+          'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
+          {
+              headers: {
+                  Authorization: `Basic ${auth}`,
+              },
+          }
+      );
+
+
+
+
+
+      const { access_token, expires_in } = response.data;
+      const expiryTime = Date.now() + expires_in * 1000;
+
+      cachedToken = { access_token, expiryTime };
+      req.token = access_token;
+      next();
+  } catch (error) {
+      console.error('Error generating token:', error.message);
+      res.status(500).json({
+          error: 'Failed to authenticate with Safaricom API.',
+          message: error.message,
+      });
+  }
+};
+
+
+
+
+// STK Push Function
+const stkPush = async (token, phoneNumber, amount) => {
+  try {
+    // Validate inputs
+    if (!token || !phoneNumber || !amount) {
+      throw new Error("Missing required parameters.");
+    }
+
+    // Generate timestamp in format YYYYMMDDHHMMSS
+    const timestamp = moment().format("YYYYMMDDHHmmss");
+
+    // Generate password for STK Push
+    const businessShortCode = process.env.M_PESA_SHORT_CODE;
+    const passKey = process.env.M_PESA_PASSKEY;
+    const password = Buffer.from(`${businessShortCode}${passKey}${timestamp}`).toString("base64");
+
+    // Prepare request body for STK Push
+    const requestBody = {
+      BusinessShortCode: businessShortCode,
+      Password: password,
+      Timestamp: timestamp,
+      TransactionType: "CustomerPayBillOnline",
+      Amount: amount,
+      PartyA: phoneNumber,
+      PartyB: businessShortCode,
+      PhoneNumber: phoneNumber,
+      CallBackURL: process.env.CALLBACK_URL,
+      AccountReference: phoneNumber,
+      TransactionDesc: "Payment for goods/services",
+    };
+
+    console.log("Sending STK Push request:", requestBody);
+
+    // Make the STK Push API call
+    const response = await axios.post(
+      "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
+      requestBody,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log("STK Push Response:", response.data);
+
+    // Handle response
+    if (response.data.ResponseCode === "0") {
+      return {
+        success: true,
+        message: "STK push initiated successfully.",
+        data: response.data,
+      };
+    } else {
+      return {
+        success: false,
+        message: "Failed to initiate STK push.",
+        error: response.data.ResponseDescription,
+      };
+    }
+  } catch (error) {
+    console.error("Error during STK Push:", error.message);
+    if (error.response) {
+      console.error("Safaricom API Error:", error.response.data);
+      return {
+        success: false,
+        message: "Safaricom API Error",
+        error: error.response.data,
+      };
+    }
+    return {
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    };
+  }
+};
+
+
+// const handleCallback = async (req, res) => {
+//   try {
+//       const callbackData = req.body;
+//       const result_code = callbackData.Body.stkCallback.ResultCode;
+//       if (result_code !== 0) {
+//           const error_message = callbackData.Body.stkCallback.ResultDesc;
+//           return res.status(400).json({
+//               ResultCode: result_code,
+//               ResultDesc: error_message,
+//           });
+//       }
+
+//       const body = callbackData.Body.stkCallback.CallbackMetadata;
+//       const amount = body.Item.find((obj) => obj.Name === "Amount").Value;
+//       const mpesaCode = body.Item.find((obj) => obj.Name === "MpesaReceiptNumber").Value;
+//       const phone = body.Item.find((obj) => obj.Name === "PhoneNumber").Value;
+
+//       return res.status(200).json({
+//           message: "Callback processed successfully.",
+//           transaction: { amount, mpesaCode, phone },
+//       });
+//   } catch (error) {
+//       return res.status(500).json({
+//           error: "An error occurred while processing the callback.",
+//       });
+//   }
+// };
+
+
+
+// STK Query (Check payment status)
+// const stkQuery = async (req, res) => {
+//   try {
+//       const { checkoutRequestID } = req.body;
+//       if (!checkoutRequestID) {
+//           return res.status(400).json({ error: "CheckoutRequestID is required" });
+//       }
+
+//       const timestamp = moment().format("YYYYMMDDHHmmss");
+//       const password = Buffer.from(
+//           `${process.env.M_PESA_SHORT_CODE}${process.env.M_PESA_PASSKEY}${timestamp}`
+//       ).toString("base64");
+
+//       const requestBody = {
+//           BusinessShortCode: process.env.M_PESA_SHORT_CODE,
+//           Password: password,
+//           Timestamp: timestamp,
+//           CheckoutRequestID: checkoutRequestID,
+//       };
+
+//       const response = await axios.post(
+//           `${process.env.BASE_URL}/mpesa/stkpushquery/v1/query`,
+//           requestBody,
+//           {
+//               headers: {
+//                   Authorization: `Bearer ${req.token}`,
+//               },
+//           }
+//       );
+
+//       const { ResultCode, ResultDesc } = response.data;
+
+//       if (ResultCode === "0") {
+//           return res.status(200).json({
+//               status: "Success",
+//               message: "Payment successful",
+//               data: response.data,
+//           });
+//       } else {
+//           return res.status(400).json({
+//               status: "Failure",
+//               message: ResultDesc,
+//               data: response.data,
+//           });
+//       }
+//   } catch (error) {
+//       return res.status(500).json({
+//           error: "An error occurred while querying the STK payment status.",
+//           details: error.response?.data || error.message,
+//       });
+//   }
+// };
+
 
 const Checkout = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
@@ -41,18 +256,30 @@ const Checkout = () => {
     setShowForm(false);
     setSelectedPaymentMethod(null);
     setErrorMessage("");
+    setPaymentDetails({
+      plan: "",
+      amountUSD: "",
+      amountKES: "",
+      currency: "USD",
+      name: "",
+      phoneNumber: "",
+      cardNumber: "",
+      expiryMonth: "",
+      expiryYear: "",
+      cvv: "",
+    });
   };
 
   // Handle input changes for form fields
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
+    // Validate phone number format
     if (name === "phoneNumber") {
-      // Regular expression for Safaricom numbers
-      const safaricomNumberRegex = /^\(\+2547\d{7}|\+2541\d{7}|07\d{8}\)$/;
+      const safaricomNumberRegex = /^(?:\+2547\d{7}|07\d{8})$/; // Correct regex
 
       if (!safaricomNumberRegex.test(value)) {
-        setErrorMessage("Invalid Safaricom number. Use (+2547...), (+2541...), or 07...");
+        setErrorMessage("Invalid Safaricom number. Use +2547... or 07...");
       } else {
         setErrorMessage(""); // Clear error message if the number is valid
       }
@@ -63,6 +290,7 @@ const Checkout = () => {
       [name]: value,
     }));
 
+    // Update amount based on selected plan
     if (name === "plan") {
       let selectedAmountUSD = "";
       switch (value) {
@@ -80,44 +308,43 @@ const Checkout = () => {
       }
       setPaymentDetails((prev) => ({
         ...prev,
-        plan: value,
         amountUSD: selectedAmountUSD,
         amountKES: selectedAmountUSD ? convertToKES(selectedAmountUSD) : "",
       }));
     }
   };
 
-  // Handle STK Push for M-Pesa
   const handleMpesaPayment = async () => {
     const { phoneNumber, amountKES } = paymentDetails;
-
+  
+    // Validate inputs
     if (!phoneNumber || !amountKES) {
       setErrorMessage("Please enter your phone number and select a plan.");
       return;
     }
-
+  
     try {
-      const response = await fetch("http://localhost:8000/stk", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phoneNumber,
-          amount: amountKES,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to process M-Pesa payment.");
+      // Fetch the token from the getToken function
+      const accessToken = await getToken();
+  
+      // Call the stkPush function with the accessToken, phoneNumber, and amountKES
+      const result = await stkPush(accessToken, phoneNumber, amountKES);
+  
+      // Handle the response from stkPush
+      if (result.success) {
+        alert(result.message); // Success message from stkPush
+        setShowForm(false); // Hide form or perform any other UI updates
+      } else {
+        throw new Error(result.error || "Failed to initiate M-Pesa payment.");
       }
-
-      const result = await response.json();
-      alert(result.message);
-      setShowForm(false);
     } catch (error) {
       setErrorMessage(`M-Pesa Payment Failed: ${error.message}`);
     }
   };
+  
+
+
+
 
   // Handle Payline form submission
   const handleSubmit = async () => {
@@ -294,5 +521,8 @@ const Checkout = () => {
     </div>
   );
 };
+
+
+
 
 export default Checkout;
