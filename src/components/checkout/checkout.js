@@ -315,36 +315,50 @@ const Checkout = () => {
   };
 
   const handleMpesaPayment = async () => {
-    const { phoneNumber, amountKES } = paymentDetails;
-  
+    let { phoneNumber, amountKES } = paymentDetails;
+
     // Validate inputs
     if (!phoneNumber || !amountKES) {
-      setErrorMessage("Please enter your phone number and select a plan.");
-      return;
+        setErrorMessage("Please enter your phone number and select a plan.");
+        return;
     }
-  
+
+    // Format phone number
+    if (phoneNumber.startsWith('07') && phoneNumber.length === 10) {
+        phoneNumber = '254' + phoneNumber.substring(1);
+    } else if (phoneNumber.length !== 12 || !phoneNumber.startsWith('254')) {
+        setErrorMessage("Invalid phone number format.");
+        return;
+    }
+
+    // Convert amount to a number
+    const amount = parseFloat(amountKES);
+    if (isNaN(amount)) {
+        setErrorMessage("Invalid amount.");
+        return;
+    }
+
     try {
-      // Fetch the token from the getToken function
-      const accessToken = await getToken();
-  
-      // Call the stkPush function with the accessToken, phoneNumber, and amountKES
-      const result = await stkPush(accessToken, phoneNumber, amountKES);
-  
-      // Handle the response from stkPush
-      if (result.success) {
-        alert(result.message); // Success message from stkPush
-        setShowForm(false); // Hide form or perform any other UI updates
-      } else {
-        throw new Error(result.error || "Failed to initiate M-Pesa payment.");
-      }
+        // Log the request data
+        console.log("Sending STK push request with:", { phoneNumber, amount });
+
+        // Make an API call to the server to initiate the STK push
+        const response = await axios.post('http://localhost:8000/api/stk', {
+            phoneNumber,
+            amount,
+        });
+
+        // Handle the response from the server
+        if (response.data && response.data.message) {
+            alert(response.data.message); // Success message from the server
+            setShowForm(false);
+        } else {
+            throw new Error("Failed to initiate M-Pesa payment.");
+        }
     } catch (error) {
-      setErrorMessage(`M-Pesa Payment Failed: ${error.message}`);
+        setErrorMessage(`M-Pesa Payment Failed: ${error.message}`);
     }
-  };
-  
-
-
-
+};
 
   // Handle Payline form submission
   const handleSubmit = async () => {
