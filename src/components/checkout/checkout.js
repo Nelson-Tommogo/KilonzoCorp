@@ -292,13 +292,13 @@ const Checkout = () => {
       let selectedAmountUSD = "";
       switch (value) {
         case "Basic":
-          selectedAmountUSD = "1999.49";
+          selectedAmountUSD = "1999";
           break;
         case "Pro":
-          selectedAmountUSD = "3799.49";
+          selectedAmountUSD = "3799";
           break;
         case "Enterprise":
-          selectedAmountUSD = "5499.49";
+          selectedAmountUSD = "5499";
           break;
         default:
           selectedAmountUSD = "";
