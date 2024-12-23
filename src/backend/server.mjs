@@ -13,8 +13,6 @@ const PORT = process.env.PORT;
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
-
 // Helper function for caching token
 let cachedToken = null;
 
@@ -53,7 +51,6 @@ const getToken = async (req, res, next) => {
         });
     }
 };
-
 
 // Routes
 app.get('/', (req, res) => {
@@ -134,85 +131,6 @@ app.post('/stk', getToken, async (req, res) => {
         });
     }
 });
-
-
-// STK Push Function
-const stkPush = async (token, phoneNumber, amount) => {
-    try {
-      // Validate inputs
-      if (!token || !phoneNumber || !amount) {
-        throw new Error("Missing required parameters.");
-      }
-  
-      // Generate timestamp in format YYYYMMDDHHMMSS
-      const timestamp = moment().format("YYYYMMDDHHmmss");
-  
-      // Generate password for STK Push
-      const businessShortCode = process.env.M_PESA_SHORT_CODE;
-      const passKey = process.env.M_PESA_PASSKEY;
-      const password = Buffer.from(`${businessShortCode}${passKey}${timestamp}`).toString("base64");
-  
-      // Prepare request body for STK Push
-      const requestBody = {
-        BusinessShortCode: businessShortCode,
-        Password: password,
-        Timestamp: timestamp,
-        TransactionType: "CustomerPayBillOnline",
-        Amount: amount,
-        PartyA: phoneNumber,
-        PartyB: businessShortCode,
-        PhoneNumber: phoneNumber,
-        CallBackURL: process.env.CALLBACK_URL,
-        AccountReference: phoneNumber,
-        TransactionDesc: "Payment for goods/services",
-      };
-  
-      console.log("Sending STK Push request:", requestBody);
-  
-      // Make the STK Push API call
-      const response = await axios.post(
-        "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
-        requestBody,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-  
-      console.log("STK Push Response:", response.data);
-  
-      // Handle response
-      if (response.data.ResponseCode === "0") {
-        return {
-          success: true,
-          message: "STK push initiated successfully.",
-          data: response.data,
-        };
-      } else {
-        return {
-          success: false,
-          message: "Failed to initiate STK push.",
-          error: response.data.ResponseDescription,
-        };
-      }
-    } catch (error) {
-      console.error("Error during STK Push:", error.message);
-      if (error.response) {
-        console.error("Safaricom API Error:", error.response.data);
-        return {
-          success: false,
-          message: "Safaricom API Error",
-          error: error.response.data,
-        };
-      }
-      return {
-        success: false,
-        message: "Internal Server Error",
-        error: error.message,
-      };
-    }
-  };
 
 // Callback handling function
 const handleCallback = async (req, res) => {
@@ -302,7 +220,7 @@ const stkQuery = async (req, res) => {
 app.post('/stkquery', stkQuery);
 
 // Exporting the server and relevant functions
-export { app, PORT,stkPush, getToken, handleCallback, stkQuery };
+export { app, PORT };
 
 // Start the server
 app.listen(PORT, () => {
