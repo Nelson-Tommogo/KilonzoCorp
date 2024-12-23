@@ -347,6 +347,7 @@ const Checkout = () => {
             phoneNumber,
             amount,
         });
+        
 
         // Handle the response from the server
         if (response.data && response.data.message) {
