@@ -295,13 +295,13 @@ const Checkout = () => {
       let selectedAmountUSD = "";
       switch (value) {
         case "Basic":
-          selectedAmountUSD = "1999.49";
+          selectedAmountUSD = "1999";
           break;
         case "Pro":
-          selectedAmountUSD = "3799.49";
+          selectedAmountUSD = "3799";
           break;
         case "Enterprise":
-          selectedAmountUSD = "5499.49";
+          selectedAmountUSD = "5499";
           break;
         default:
           selectedAmountUSD = "";
@@ -343,7 +343,7 @@ const Checkout = () => {
         console.log("Sending STK push request with:", { phoneNumber, amount });
 
         // Make an API call to the server to initiate the STK push
-        const response = await axios.post('http://localhost:8000/api/stk', {
+        const response = await axios.post('https://kbackend-4dak.onrender.com/api/stk', {
             phoneNumber,
             amount,
         });
@@ -416,9 +416,9 @@ const Checkout = () => {
               <label htmlFor="plan">Plan:</label>
               <select id="plan" name="plan" value={paymentDetails.plan || ""} onChange={handleInputChange}>
                 <option value="">Select a plan</option>
-                <option value="Basic">Basic - $1999.49</option>
-                <option value="Pro">Pro - $3799.49</option>
-                <option value="Enterprise">Enterprise - $5499.49</option>
+                <option value="Basic">Basic - $1999</option>
+                <option value="Pro">Pro - $3799</option>
+                <option value="Enterprise">Enterprise - $5499</option>
               </select>
             </div>
             <div className="form-field">
@@ -463,9 +463,9 @@ const Checkout = () => {
               <label htmlFor="plan">Select Plan:</label>
               <select id="plan" name="plan" value={paymentDetails.plan} onChange={handleInputChange}>
                 <option value="">--Select a Plan--</option>
-                <option value="Basic">Basic Plan - $1999.49 / project</option>
-                <option value="Pro">Pro Plan - $3799.49 / project</option>
-                <option value="Enterprise">Enterprise Plan - $5499.49 / project</option>
+                <option value="Basic">Basic Plan - $1999 / project</option>
+                <option value="Pro">Pro Plan - $3799 / project</option>
+                <option value="Enterprise">Enterprise Plan - $5499 / project</option>
               </select>
             </div>
             <div className="form-field">
