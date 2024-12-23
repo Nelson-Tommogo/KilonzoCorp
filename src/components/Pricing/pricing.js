@@ -7,23 +7,6 @@ const Pricing = () => {
   const pricingPlans = [
     {
       id: 1,
-      planName: 'Test  Plan',
-      price: '$10 / project',
-      description: 'Perfect for smaller projects with essential features.',
-      features: [
-        'Image & Video Annotation (Up to 10,000 labels)',
-        'Text Classification (Up to 5,000 documents)',
-        'Basic Quality Assurance with Single-Level Review',
-        'Standard Turnaround Time (7-10 business days)',
-        'Data Annotation Tool Access',
-        'Access to Annotation Progress Dashboard',
-        'Free Initial Dataset Consultation',
-        'Email Support',
-      ],
-      isDefault: false,
-    },
-    {
-      id: 2,
       planName: 'Basic Plan',
       price: '$1999.49 / project',
       description: 'Perfect for smaller projects with essential features.',
@@ -40,7 +23,7 @@ const Pricing = () => {
       isDefault: false,
     },
     {
-      id: 3,
+      id: 2,
       planName: 'Pro Plan',
       price: '$3799.49 / project',
       description: 'Advanced features for larger and more complex projects.',
@@ -57,7 +40,7 @@ const Pricing = () => {
       isDefault: true,  // Pro Plan is the default plan
     },
     {
-      id: 4,
+      id: 3,
       planName: 'Enterprise Plan',
       price: '$5499.49 / project',
       description: 'All-inclusive, scalable solutions with premium support.',
