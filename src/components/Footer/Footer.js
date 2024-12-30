@@ -115,7 +115,7 @@ const Footer = () => {
                             </p>
                             <p className={styles.text}>
                                 <a 
-                                    href="https://maps.app.goo.gl/t19DWcCp5wyrX9vC6" 
+                                    href="https://www.google.com/maps/place/1.5151,37.2861/@1.5151,37.2861,15z/data=!3m1!4b1" 
                                     target="_blank" 
                                     rel="noopener noreferrer"
                                     style={{ color: '#fff', textDecoration: 'underline' }}
@@ -126,6 +126,20 @@ const Footer = () => {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* Embedded Map Section */}
+            <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3988.394398688508!2d37.275028174966195!3d-1.5307949984548723!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMcKwMzEnNTAuOSJTIDM3wrAxNiczOS40IkU!5e0!3m2!1sen!2ske!4v1735552202036!5m2!1sen!2ske" 
+                    width="100%" 
+                    height="300" 
+                    style={{ border: 0 }} 
+                    title="Location Map of KilonzoCorp"  // Added title attribute
+                    allowFullScreen 
+                    loading="lazy" 
+                    referrerPolicy="no-referrer-when-downgrade"
+                ></iframe>
             </div>
 
             {/* Copyright Section */}
