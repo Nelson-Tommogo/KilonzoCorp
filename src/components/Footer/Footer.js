@@ -115,7 +115,7 @@ const Footer = () => {
                             </p>
                             <p className={styles.text}>
                                 <a 
-                                    href="https://www.google.com/maps/place/1.5151,37.2861/@1.5151,37.2861,15z/data=!3m1!4b1" 
+                                    href="https://maps.app.goo.gl/t19DWcCp5wyrX9vC6" 
                                     target="_blank" 
                                     rel="noopener noreferrer"
                                     style={{ color: '#fff', textDecoration: 'underline' }}
