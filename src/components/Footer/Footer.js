@@ -58,7 +58,6 @@ const Footer = () => {
                         <div className={`col-lg-3 col-sm-6 ${styles.contain}`}>
                             <p className={styles.logo}>KilonzoCorp</p>
                             <p className={styles.text}> KilonzoCorp Holdings Ltd is located in the Kilonzocorp building, near Kathaayoni Junior School in Kathaayoni Estate, off Machakos-Kitui Road, in Machakos Town. </p>
-                            
                         </div>
 
                         {/* Column 2 */}
@@ -108,6 +107,21 @@ const Footer = () => {
                             </p>
                             <p className={styles.text}>
                                 <FaTwitter className={styles.icon} /> Twitter: @KilonzoCorp
+                            </p>
+                            {/* New Contact Information Section */}
+                            <p className={styles.head}>Contact Us</p>
+                            <p className={styles.text}>
+                                PO Box 2288-90100 Machakos
+                            </p>
+                            <p className={styles.text}>
+                                <a 
+                                    href="https://www.google.com/maps/place/1.5151,37.2861/@1.5151,37.2861,15z/data=!3m1!4b1" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    style={{ color: '#fff', textDecoration: 'underline' }}
+                                >
+                                    View Location on Google Maps
+                                </a>
                             </p>
                         </div>
                     </div>

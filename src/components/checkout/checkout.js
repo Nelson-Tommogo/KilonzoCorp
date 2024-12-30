@@ -5,135 +5,135 @@ import mpesaImage from "./mpesa.webp"; // M-Pesa logo for popup
 import paylineLogo from "./pay.png"; // Payline logo for popup
 import "./checkout.css"; 
 import axios from 'axios';
-import moment from 'moment';
-import { Buffer } from 'buffer';
+// import moment from 'moment';
+// import { Buffer } from 'buffer';
 
 
-let cachedToken = null;
-
-
-
-const getToken = async (req, res, next) => {
-  try {
-      if (cachedToken && Date.now() < cachedToken.expiryTime) {
-          req.token = cachedToken.access_token;
-          return next();
-      }
-
-      const consumerKey = process.env.M_PESA_CONSUMER_KEY;
-      const consumerSecret = process.env.M_PESA_CONSUMER_SECRET;
-
-      // Using btoa instead of Buffer in the browser environment
-      const auth = btoa(`${consumerKey}:${consumerSecret}`);
-
-      const response = await axios.get(
-          'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
-          {
-              headers: {
-                  Authorization: `Basic ${auth}`,
-              },
-          }
-      );
+// let cachedToken = null;
 
 
 
+// const getToken = async (req, res, next) => {
+//   try {
+//       if (cachedToken && Date.now() < cachedToken.expiryTime) {
+//           req.token = cachedToken.access_token;
+//           return next();
+//       }
+
+//       const consumerKey = process.env.M_PESA_CONSUMER_KEY;
+//       const consumerSecret = process.env.M_PESA_CONSUMER_SECRET;
+
+//       // Using btoa instead of Buffer in the browser environment
+//       const auth = btoa(`${consumerKey}:${consumerSecret}`);
+
+//       const response = await axios.get(
+//           'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
+//           {
+//               headers: {
+//                   Authorization: `Basic ${auth}`,
+//               },
+//           }
+//       );
 
 
-      const { access_token, expires_in } = response.data;
-      const expiryTime = Date.now() + expires_in * 1000;
 
-      cachedToken = { access_token, expiryTime };
-      req.token = access_token;
-      next();
-  } catch (error) {
-      console.error('Error generating token:', error.message);
-      res.status(500).json({
-          error: 'Failed to authenticate with Safaricom API.',
-          message: error.message,
-      });
-  }
-};
+
+
+//       const { access_token, expires_in } = response.data;
+//       const expiryTime = Date.now() + expires_in * 1000;
+
+//       cachedToken = { access_token, expiryTime };
+//       req.token = access_token;
+//       next();
+//   } catch (error) {
+//       console.error('Error generating token:', error.message);
+//       res.status(500).json({
+//           error: 'Failed to authenticate with Safaricom API.',
+//           message: error.message,
+//       });
+//   }
+// };
 
 
 
 
 // STK Push Function
-const stkPush = async (token, phoneNumber, amount) => {
-  try {
-    // Validate inputs
-    if (!token || !phoneNumber || !amount) {
-      throw new Error("Missing required parameters.");
-    }
+// const stkPush = async (token, phoneNumber, amount) => {
+//   try {
+//     // Validate inputs
+//     if (!token || !phoneNumber || !amount) {
+//       throw new Error("Missing required parameters.");
+//     }
 
-    // Generate timestamp in format YYYYMMDDHHMMSS
-    const timestamp = moment().format("YYYYMMDDHHmmss");
+//     // Generate timestamp in format YYYYMMDDHHMMSS
+//     const timestamp = moment().format("YYYYMMDDHHmmss");
 
-    // Generate password for STK Push
-    const businessShortCode = process.env.M_PESA_SHORT_CODE;
-    const passKey = process.env.M_PESA_PASSKEY;
-    const password = Buffer.from(`${businessShortCode}${passKey}${timestamp}`).toString("base64");
+//     // Generate password for STK Push
+//     const businessShortCode = process.env.M_PESA_SHORT_CODE;
+//     const passKey = process.env.M_PESA_PASSKEY;
+//     const password = Buffer.from(`${businessShortCode}${passKey}${timestamp}`).toString("base64");
 
-    // Prepare request body for STK Push
-    const requestBody = {
-      BusinessShortCode: businessShortCode,
-      Password: password,
-      Timestamp: timestamp,
-      TransactionType: "CustomerPayBillOnline",
-      Amount: amount,
-      PartyA: phoneNumber,
-      PartyB: businessShortCode,
-      PhoneNumber: phoneNumber,
-      CallBackURL: process.env.CALLBACK_URL,
-      AccountReference: phoneNumber,
-      TransactionDesc: "Payment for goods/services",
-    };
+//     // Prepare request body for STK Push
+//     const requestBody = {
+//       BusinessShortCode: businessShortCode,
+//       Password: password,
+//       Timestamp: timestamp,
+//       TransactionType: "CustomerPayBillOnline",
+//       Amount: amount,
+//       PartyA: phoneNumber,
+//       PartyB: businessShortCode,
+//       PhoneNumber: phoneNumber,
+//       CallBackURL: process.env.CALLBACK_URL,
+//       AccountReference: phoneNumber,
+//       TransactionDesc: "Payment for goods/services",
+//     };
 
-    console.log("Sending STK Push request:", requestBody);
+//     console.log("Sending STK Push request:", requestBody);
 
-    // Make the STK Push API call
-    const response = await axios.post(
-      "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
-      requestBody,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+//     // Make the STK Push API call
+//     const response = await axios.post(
+//       "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
+//       requestBody,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       }
+//     );
 
-    console.log("STK Push Response:", response.data);
+//     console.log("STK Push Response:", response.data);
 
-    // Handle response
-    if (response.data.ResponseCode === "0") {
-      return {
-        success: true,
-        message: "STK push initiated successfully.",
-        data: response.data,
-      };
-    } else {
-      return {
-        success: false,
-        message: "Failed to initiate STK push.",
-        error: response.data.ResponseDescription,
-      };
-    }
-  } catch (error) {
-    console.error("Error during STK Push:", error.message);
-    if (error.response) {
-      console.error("Safaricom API Error:", error.response.data);
-      return {
-        success: false,
-        message: "Safaricom API Error",
-        error: error.response.data,
-      };
-    }
-    return {
-      success: false,
-      message: "Internal Server Error",
-      error: error.message,
-    };
-  }
-};
+//     // Handle response
+//     if (response.data.ResponseCode === "0") {
+//       return {
+//         success: true,
+//         message: "STK push initiated successfully.",
+//         data: response.data,
+//       };
+//     } else {
+//       return {
+//         success: false,
+//         message: "Failed to initiate STK push.",
+//         error: response.data.ResponseDescription,
+//       };
+//     }
+//   } catch (error) {
+//     console.error("Error during STK Push:", error.message);
+//     if (error.response) {
+//       console.error("Safaricom API Error:", error.response.data);
+//       return {
+//         success: false,
+//         message: "Safaricom API Error",
+//         error: error.response.data,
+//       };
+//     }
+//     return {
+//       success: false,
+//       message: "Internal Server Error",
+//       error: error.message,
+//     };
+//   }
+// };
 
 
 // const handleCallback = async (req, res) => {
@@ -406,7 +406,7 @@ const Checkout = () => {
           <h4>Payline</h4>
         </div>
       </div>
-
+      
       {/* M-Pesa Payment Form */}
       {showForm && selectedPaymentMethod === "mpesa" && (
         <div className="popup-form">
