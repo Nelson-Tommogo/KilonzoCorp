@@ -7,23 +7,6 @@ const Pricing = () => {
   const pricingPlans = [
     {
       id: 1,
-      planName: 'Test  Plan',
-      price: '$10 / project',
-      description: 'Perfect for smaller projects with essential features.',
-      features: [
-        'Image & Video Annotation (Up to 10,000 labels)',
-        'Text Classification (Up to 5,000 documents)',
-        'Basic Quality Assurance with Single-Level Review',
-        'Standard Turnaround Time (7-10 business days)',
-        'Data Annotation Tool Access',
-        'Access to Annotation Progress Dashboard',
-        'Free Initial Dataset Consultation',
-        'Email Support',
-      ],
-      isDefault: false,
-    },
-    {
-      id: 2,
       planName: 'Basic Plan',
       price: '$1999 / project',
       description: 'Perfect for smaller projects with essential features.',
@@ -40,7 +23,7 @@ const Pricing = () => {
       isDefault: false,
     },
     {
-      id: 3,
+      id: 2,
       planName: 'Pro Plan',
       price: '$3799 / project',
       description: 'Advanced features for larger and more complex projects.',
@@ -54,22 +37,22 @@ const Pricing = () => {
         'Dedicated Project Manager',
         'Priority Email & Phone Support',
       ],
-      isDefault: true,  // Pro Plan is the default plan
+      isDefault: true,
     },
     {
-      id: 4,
+      id: 3,
       planName: 'Enterprise Plan',
       price: '$5499 / project',
       description: 'All-inclusive, scalable solutions with premium support.',
       features: [
         'Everything in the Pro Plan, plus',
         'Unlimited Labels and Document Classification',
-        '3D Point Cloud Annotation (Ideal for autonomous vehicle projects)',
+        '3D Point Cloud Annotation',
         'Custom Workflow Design and Integration Support',
         'Real-Time Progress Reporting',
         '24/7 Premium Support',
         'On-Demand Annotation Team for Scalability',
-        'Data Security Compliance (Advanced encryption and access controls)',
+        'Data Security Compliance',
       ],
       isDefault: false,
     },
@@ -82,9 +65,9 @@ const Pricing = () => {
         <p>Select the best plan for your project needs.</p>
       </div>
 
-      <div className="column">
+      <div className="pricing-row">
         {pricingPlans.map((plan) => (
-          <div key={plan.id} className={`col-lg-12 mb-4 ${plan.isDefault ? 'default-plan' : ''}`}>
+          <div key={plan.id} className={`pricing-card-wrapper ${plan.isDefault ? 'default-plan' : ''}`}>
             <div className={`card pricing-card ${plan.isDefault ? 'default-card' : ''}`}>
               <div className="card-body text-center">
                 <h5 className={`card-title ${plan.isDefault ? 'default-title' : ''}`}>{plan.planName}</h5>
@@ -93,7 +76,7 @@ const Pricing = () => {
                 <ul className="features-list">
                   {plan.features.map((feature, index) => (
                     <li key={index} className="feature-item">
-                      <span className={plan.isDefault ? 'tick' : 'cross'}>✔️</span> {feature}
+                      <span className={plan.isDefault ? 'tick' : 'tick'}>✔️</span> {feature}
                     </li>
                   ))}
                 </ul>

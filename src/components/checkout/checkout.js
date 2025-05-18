@@ -1,226 +1,15 @@
 import React, { useState } from "react";
-import safImage from "./saf.png"; // M-Pesa logo/image
-import paylineImage from "./payline.png"; // Payline logo/image
-import mpesaImage from "./mpesa.webp"; // M-Pesa logo for popup
-import paylineLogo from "./pay.png"; // Payline logo for popup
-import "./checkout.css"; 
-import axios from 'axios';
-// import moment from 'moment';
-// import { Buffer } from 'buffer';
-
-
-// let cachedToken = null;
-
-
-
-// const getToken = async (req, res, next) => {
-//   try {
-//       if (cachedToken && Date.now() < cachedToken.expiryTime) {
-//           req.token = cachedToken.access_token;
-//           return next();
-//       }
-
-//       const consumerKey = process.env.M_PESA_CONSUMER_KEY;
-//       const consumerSecret = process.env.M_PESA_CONSUMER_SECRET;
-
-//       // Using btoa instead of Buffer in the browser environment
-//       const auth = btoa(`${consumerKey}:${consumerSecret}`);
-
-//       const response = await axios.get(
-//           'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
-//           {
-//               headers: {
-//                   Authorization: `Basic ${auth}`,
-//               },
-//           }
-//       );
-
-
-
-
-
-//       const { access_token, expires_in } = response.data;
-//       const expiryTime = Date.now() + expires_in * 1000;
-
-//       cachedToken = { access_token, expiryTime };
-//       req.token = access_token;
-//       next();
-//   } catch (error) {
-//       console.error('Error generating token:', error.message);
-//       res.status(500).json({
-//           error: 'Failed to authenticate with Safaricom API.',
-//           message: error.message,
-//       });
-//   }
-// };
-
-
-
-
-// STK Push Function
-// const stkPush = async (token, phoneNumber, amount) => {
-//   try {
-//     // Validate inputs
-//     if (!token || !phoneNumber || !amount) {
-//       throw new Error("Missing required parameters.");
-//     }
-
-//     // Generate timestamp in format YYYYMMDDHHMMSS
-//     const timestamp = moment().format("YYYYMMDDHHmmss");
-
-//     // Generate password for STK Push
-//     const businessShortCode = process.env.M_PESA_SHORT_CODE;
-//     const passKey = process.env.M_PESA_PASSKEY;
-//     const password = Buffer.from(`${businessShortCode}${passKey}${timestamp}`).toString("base64");
-
-//     // Prepare request body for STK Push
-//     const requestBody = {
-//       BusinessShortCode: businessShortCode,
-//       Password: password,
-//       Timestamp: timestamp,
-//       TransactionType: "CustomerPayBillOnline",
-//       Amount: amount,
-//       PartyA: phoneNumber,
-//       PartyB: businessShortCode,
-//       PhoneNumber: phoneNumber,
-//       CallBackURL: process.env.CALLBACK_URL,
-//       AccountReference: phoneNumber,
-//       TransactionDesc: "Payment for goods/services",
-//     };
-
-//     console.log("Sending STK Push request:", requestBody);
-
-//     // Make the STK Push API call
-//     const response = await axios.post(
-//       "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
-//       requestBody,
-//       {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//         },
-//       }
-//     );
-
-//     console.log("STK Push Response:", response.data);
-
-//     // Handle response
-//     if (response.data.ResponseCode === "0") {
-//       return {
-//         success: true,
-//         message: "STK push initiated successfully.",
-//         data: response.data,
-//       };
-//     } else {
-//       return {
-//         success: false,
-//         message: "Failed to initiate STK push.",
-//         error: response.data.ResponseDescription,
-//       };
-//     }
-//   } catch (error) {
-//     console.error("Error during STK Push:", error.message);
-//     if (error.response) {
-//       console.error("Safaricom API Error:", error.response.data);
-//       return {
-//         success: false,
-//         message: "Safaricom API Error",
-//         error: error.response.data,
-//       };
-//     }
-//     return {
-//       success: false,
-//       message: "Internal Server Error",
-//       error: error.message,
-//     };
-//   }
-// };
-
-
-// const handleCallback = async (req, res) => {
-//   try {
-//       const callbackData = req.body;
-//       const result_code = callbackData.Body.stkCallback.ResultCode;
-//       if (result_code !== 0) {
-//           const error_message = callbackData.Body.stkCallback.ResultDesc;
-//           return res.status(400).json({
-//               ResultCode: result_code,
-//               ResultDesc: error_message,
-//           });
-//       }
-
-//       const body = callbackData.Body.stkCallback.CallbackMetadata;
-//       const amount = body.Item.find((obj) => obj.Name === "Amount").Value;
-//       const mpesaCode = body.Item.find((obj) => obj.Name === "MpesaReceiptNumber").Value;
-//       const phone = body.Item.find((obj) => obj.Name === "PhoneNumber").Value;
-
-//       return res.status(200).json({
-//           message: "Callback processed successfully.",
-//           transaction: { amount, mpesaCode, phone },
-//       });
-//   } catch (error) {
-//       return res.status(500).json({
-//           error: "An error occurred while processing the callback.",
-//       });
-//   }
-// };
-
-
-
-// STK Query (Check payment status)
-// const stkQuery = async (req, res) => {
-//   try {
-//       const { checkoutRequestID } = req.body;
-//       if (!checkoutRequestID) {
-//           return res.status(400).json({ error: "CheckoutRequestID is required" });
-//       }
-
-//       const timestamp = moment().format("YYYYMMDDHHmmss");
-//       const password = Buffer.from(
-//           `${process.env.M_PESA_SHORT_CODE}${process.env.M_PESA_PASSKEY}${timestamp}`
-//       ).toString("base64");
-
-//       const requestBody = {
-//           BusinessShortCode: process.env.M_PESA_SHORT_CODE,
-//           Password: password,
-//           Timestamp: timestamp,
-//           CheckoutRequestID: checkoutRequestID,
-//       };
-
-//       const response = await axios.post(
-//           `${process.env.BASE_URL}/mpesa/stkpushquery/v1/query`,
-//           requestBody,
-//           {
-//               headers: {
-//                   Authorization: `Bearer ${req.token}`,
-//               },
-//           }
-//       );
-
-//       const { ResultCode, ResultDesc } = response.data;
-
-//       if (ResultCode === "0") {
-//           return res.status(200).json({
-//               status: "Success",
-//               message: "Payment successful",
-//               data: response.data,
-//           });
-//       } else {
-//           return res.status(400).json({
-//               status: "Failure",
-//               message: ResultDesc,
-//               data: response.data,
-//           });
-//       }
-//   } catch (error) {
-//       return res.status(500).json({
-//           error: "An error occurred while querying the STK payment status.",
-//           details: error.response?.data || error.message,
-//       });
-//   }
-// };
-
+import { useNavigate } from "react-router-dom";
+import safImage from "./saf.png";
+import paylineImage from "./payline.png";
+import mpesaImage from "./mpesa.webp";
+import paylineLogo from "./pay.png";
+import { FaCheckCircle, FaTimesCircle, FaSpinner, FaArrowRight } from "react-icons/fa";
+import "./checkout.css";
+import axios from "axios";
 
 const Checkout = () => {
+  const navigate = useNavigate();
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState({
@@ -236,26 +25,27 @@ const Checkout = () => {
     cvv: "",
   });
   const [errorMessage, setErrorMessage] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState(null);
+  const [paymentErrorDetails, setPaymentErrorDetails] = useState("");
 
-  const USD_TO_KES_RATE = 130; // Conversion rate
+  const USD_TO_KES_RATE = 130;
 
-  // Convert USD to KES
   const convertToKES = (amountUSD) => {
     return (amountUSD * USD_TO_KES_RATE).toFixed(2);
   };
 
-  // Handle payment method selection
   const handlePaymentSelection = (method) => {
     setSelectedPaymentMethod(method);
     setShowForm(true);
     setErrorMessage("");
+    setPaymentStatus(null);
   };
 
-  // Handle closing the payment form
   const handleCloseForm = () => {
     setShowForm(false);
     setSelectedPaymentMethod(null);
     setErrorMessage("");
+    setPaymentStatus(null);
     setPaymentDetails({
       plan: "",
       amountUSD: "",
@@ -270,18 +60,15 @@ const Checkout = () => {
     });
   };
 
-  // Handle input changes for form fields
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    // Validate phone number format
     if (name === "phoneNumber") {
-      const safaricomNumberRegex = /^(?:\+2547\d{7}|07\d{8})$/; // Correct regex
-
+      const safaricomNumberRegex = /^(?:\+2547\d{7}|07\d{8})$/;
       if (!safaricomNumberRegex.test(value)) {
         setErrorMessage("Invalid Safaricom number. Use +2547... or 07...");
       } else {
-        setErrorMessage(""); // Clear error message if the number is valid
+        setErrorMessage("");
       }
     }
 
@@ -290,7 +77,6 @@ const Checkout = () => {
       [name]: value,
     }));
 
-    // Update amount based on selected plan
     if (name === "plan") {
       let selectedAmountUSD = "";
       switch (value) {
@@ -317,77 +103,133 @@ const Checkout = () => {
   const handleMpesaPayment = async () => {
     let { phoneNumber, amountKES } = paymentDetails;
 
-    // Validate inputs
     if (!phoneNumber || !amountKES) {
-        setErrorMessage("Please enter your phone number and select a plan.");
-        return;
+      setErrorMessage("Please enter your phone number and select a plan.");
+      return;
     }
 
-    // Format phone number
-    if (phoneNumber.startsWith('07') && phoneNumber.length === 10) {
-        phoneNumber = '254' + phoneNumber.substring(1);
-    } else if (phoneNumber.length !== 12 || !phoneNumber.startsWith('254')) {
-        setErrorMessage("Invalid phone number format.");
-        return;
+    if (phoneNumber.startsWith("07") && phoneNumber.length === 10) {
+      phoneNumber = "254" + phoneNumber.substring(1);
+    } else if (phoneNumber.length !== 12 || !phoneNumber.startsWith("254")) {
+      setErrorMessage("Invalid phone number format.");
+      return;
     }
 
-    // Convert amount to a number
     const amount = parseFloat(amountKES);
     if (isNaN(amount)) {
-        setErrorMessage("Invalid amount.");
-        return;
-    }
-
-    try {
-        // Log the request data
-        console.log("Sending STK push request with:", { phoneNumber, amount });
-
-        // Make an API call to the server to initiate the STK push
-        const response = await axios.post('https://kbackend-4dak.onrender.com/api/stk', {
-            phoneNumber,
-            amount,
-        });
-        
-
-        // Handle the response from the server
-        if (response.data && response.data.message) {
-            alert(response.data.message); // Success message from the server
-            setShowForm(false);
-        } else {
-            throw new Error("Failed to initiate M-Pesa payment.");
-        }
-    } catch (error) {
-        setErrorMessage(`M-Pesa Payment Failed: ${error.message}`);
-    }
-};
-
-
-  // Handle Payline form submission
-  const handleSubmit = async () => {
-    const { plan, name, cardNumber, expiryMonth, expiryYear, cvv, amountUSD, currency } = paymentDetails;
-
-    if (!plan || !name || !cardNumber || !expiryMonth || !expiryYear || !cvv) {
-      setErrorMessage("Please fill out all fields before proceeding.");
+      setErrorMessage("Invalid amount.");
       return;
     }
 
     try {
-      const response = await fetch("https://api.payline.com", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, cardNumber, expiryMonth, expiryYear, cvv, amount: amountUSD, currency }),
+      setPaymentStatus("loading");
+      setErrorMessage("");
+      setPaymentErrorDetails("");
+
+      const response = await axios.post("https://kilonzocorp-payments.onrender.com/api/stk", {
+        phoneNumber,
+        amount,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "An unexpected error occurred.");
+      if (response.data && response.data.message) {
+        setPaymentStatus("success");
+      } else {
+        throw new Error("Failed to initiate M-Pesa payment. Please try again.");
       }
-
-      const result = await response.json();
-      alert(`Payment Success: ${result.message}. Our team will reach out to you shortly.`);
-      setShowForm(false);
     } catch (error) {
-      setErrorMessage(`Payline Payment Failed: ${error.message}`);
+      setPaymentStatus("error");
+      const errorMsg = error.response?.data?.error || 
+                     error.response?.data?.message || 
+                     error.message;
+      setPaymentErrorDetails(errorMsg);
+      setErrorMessage(`Payment Failed: ${errorMsg}`);
+    }
+  };
+
+  const handleBrowsePackages = () => {
+    setShowForm(false);
+    setPaymentStatus(null);
+    navigate("/pricing");
+  };
+
+  const handleSubmit = () => {
+    alert("Payline is currently under maintenance. Please use Safaricom Paybill (M-Pesa).");
+  };
+
+  const renderPaymentStatus = () => {
+    switch (paymentStatus) {
+      case "loading":
+        return (
+          <div className="payment-status loading">
+            <FaSpinner className="spinner-icon" />
+            <p>Initiating payment request...</p>
+          </div>
+        );
+      case "success":
+        return (
+          <div className="payment-status success">
+            <FaCheckCircle className="success-icon" />
+            <h4>Payment Request Successful!</h4>
+            <p>Check your phone to complete the M-Pesa payment</p>
+            <button 
+              className="browse-button" 
+              onClick={handleBrowsePackages}
+            >
+              Browse Packages <FaArrowRight className="arrow-icon" />
+            </button>
+            <p className="small-text">You can close this window</p>
+          </div>
+        );
+      case "error":
+        return (
+          <div className="payment-status error">
+            <FaTimesCircle className="error-icon" />
+            <h4>Payment Failed</h4>
+            <p>{paymentErrorDetails || "We couldn't initiate the payment"}</p>
+            <button 
+              className="retry-button" 
+              onClick={() => setPaymentStatus(null)}
+            >
+              Try Again
+            </button>
+          </div>
+        );
+      default:
+        return (
+          <>
+            <div className="form-field">
+              <label htmlFor="plan">Plan:</label>
+              <select id="plan" name="plan" value={paymentDetails.plan} onChange={handleInputChange}>
+                <option value="">Select a plan</option>
+                <option value="Basic">Basic - $1999</option>
+                <option value="Pro">Pro - $3799</option>
+                <option value="Enterprise">Enterprise - $5499</option>
+              </select>
+            </div>
+            <div className="form-field">
+              <label htmlFor="phone-number">Phone Number:</label>
+              <input
+                type="tel"
+                id="phone-number"
+                name="phoneNumber"
+                placeholder="Enter your phone number"
+                value={paymentDetails.phoneNumber}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="form-field">
+              <label htmlFor="amount-kes">Amount (KES):</label>
+              <input type="text" id="amount-kes" name="amountKES" value={paymentDetails.amountKES} readOnly />
+            </div>
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
+            <button className="proceed-button" onClick={handleMpesaPayment}>
+              Proceed
+            </button>
+            <button className="close-button" onClick={handleCloseForm}>
+              Close
+            </button>
+          </>
+        );
     }
   };
 
@@ -406,55 +248,17 @@ const Checkout = () => {
           <h4>Payline</h4>
         </div>
       </div>
-      
-      {/* M-Pesa Payment Form */}
+
       {showForm && selectedPaymentMethod === "mpesa" && (
         <div className="popup-form">
           <div className="form-content">
             <img src={mpesaImage} alt="M-Pesa" className="form-image" />
             <h3>M-Pesa Payment</h3>
-            <div className="form-field">
-              <label htmlFor="plan">Plan:</label>
-              <select id="plan" name="plan" value={paymentDetails.plan || ""} onChange={handleInputChange}>
-                <option value="">Select a plan</option>
-                <option value="Basic">Basic - $1999</option>
-                <option value="Pro">Pro - $3799</option>
-                <option value="Enterprise">Enterprise - $5499</option>
-              </select>
-            </div>
-            <div className="form-field">
-              <label htmlFor="phone-number">Phone Number:</label>
-              <input
-                type="tel"
-                id="phone-number"
-                name="phoneNumber"
-                placeholder="Enter your phone number"
-                value={paymentDetails.phoneNumber || ""}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="form-field">
-              <label htmlFor="amount-kes">Amount (KES):</label>
-              <input
-                type="text"
-                id="amount-kes"
-                name="amountKES"
-                value={paymentDetails.amountKES || ""}
-                readOnly
-              />
-            </div>
-            {errorMessage && <p className="error-message">{errorMessage}</p>}
-            <button className="proceed-button" onClick={handleMpesaPayment}>
-              Proceed
-            </button>
-            <button className="close-button" onClick={handleCloseForm}>
-              Close
-            </button>
+            {renderPaymentStatus()}
           </div>
         </div>
       )}
 
-      {/* Payline Payment Form */}
       {showForm && selectedPaymentMethod === "payline" && (
         <div className="popup-form">
           <div className="form-content">
@@ -476,7 +280,7 @@ const Checkout = () => {
                 id="name"
                 name="name"
                 placeholder="Enter your name"
-                value={paymentDetails.name || ""}
+                value={paymentDetails.name}
                 onChange={handleInputChange}
               />
             </div>
@@ -487,7 +291,7 @@ const Checkout = () => {
                 id="cardNumber"
                 name="cardNumber"
                 placeholder="Enter your card number"
-                value={paymentDetails.cardNumber || ""}
+                value={paymentDetails.cardNumber}
                 onChange={handleInputChange}
               />
             </div>
@@ -498,7 +302,7 @@ const Checkout = () => {
                 id="expiryMonth"
                 name="expiryMonth"
                 placeholder="MM"
-                value={paymentDetails.expiryMonth || ""}
+                value={paymentDetails.expiryMonth}
                 onChange={handleInputChange}
               />
             </div>
@@ -509,7 +313,7 @@ const Checkout = () => {
                 id="expiryYear"
                 name="expiryYear"
                 placeholder="YYYY"
-                value={paymentDetails.expiryYear || ""}
+                value={paymentDetails.expiryYear}
                 onChange={handleInputChange}
               />
             </div>
@@ -520,13 +324,13 @@ const Checkout = () => {
                 id="cvv"
                 name="cvv"
                 placeholder="Enter CVV"
-                value={paymentDetails.cvv || ""}
+                value={paymentDetails.cvv}
                 onChange={handleInputChange}
               />
             </div>
             {errorMessage && <p className="error-message">{errorMessage}</p>}
             <button className="proceed-button" onClick={handleSubmit}>
-              Pay Now
+              Proceed
             </button>
             <button className="close-button" onClick={handleCloseForm}>
               Close
@@ -537,4 +341,5 @@ const Checkout = () => {
     </div>
   );
 };
+
 export default Checkout;
